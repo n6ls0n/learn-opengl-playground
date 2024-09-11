@@ -1,4 +1,4 @@
-# ignores following folders
-bin/
-build/
-out/
+
+/**/**/**/**/bin/
+**/**/**/build/
+/**/**/**/**/**/out/
