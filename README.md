@@ -19,6 +19,12 @@ Below are some notes I took, feel free to remove them.
   - [Objects](#objects)
   - [Graphics Pipeline](#graphics-pipeline)
   - [Shaders](#shaders)
+- [Lighting](#lighting)
+- [Model Loading](#model-loading)
+- [Advanced OpenGL](#advanced-opengl)
+- [Advanced Lighting](#advanced-lighting)
+- [PBR](#pbr)
+- [Helpful Links](#helpful-links)
 
 ### Getting Started
 
@@ -178,6 +184,12 @@ Below are some notes I took, feel free to remove them.
 ### Lighting
 
 ### Model Loading
+
+### Advanced OpenGL
+
+### Advanced Lighting
+
+### PBR
 
 ### Helpful Links
 
