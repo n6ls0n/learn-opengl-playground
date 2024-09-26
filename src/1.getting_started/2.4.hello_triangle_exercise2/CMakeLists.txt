@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project()
+project(hello_triangle_exercise2)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -26,7 +26,7 @@ set(GLAD_SRC "${CMAKE_CURRENT_SOURCE_DIR}/../../../src/glad.c")
 # library. The main.cpp file is the source file for this example. The
 # add_executable() function will create a ${PROJECT_NAME} target that will
 # be used to create the executable for this example.
-add_executable(${PROJECT_NAME} .cpp ${GLAD_SRC})
+add_executable(${PROJECT_NAME} hello_triangle_exercise2.cpp ${GLAD_SRC})
 
 # The target_include_directories() function is used to specify the include directories for the
 # ${PROJECT_NAME} target. The PRIVATE keyword means that the include directories are only
