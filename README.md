@@ -18,6 +18,7 @@ Below are some notes I took, feel free to remove them.
   - [OpenGL is one big state machine](#opengl-is-one-big-state-machine)
   - [Objects](#objects)
   - [Graphics Pipeline](#graphics-pipeline)
+  - [Vertex Information](#vertex-information)
   - [Shaders](#shaders)
 - [Lighting](#lighting)
 - [Model Loading](#model-loading)
@@ -149,21 +150,88 @@ Below are some notes I took, feel free to remove them.
 
 - As input to the graphics pipeline we pass in a list of three 3D coordinates that should form a triangle in an array here called Vertex Data; this vertex data is a collection of vertices(singular vertex). A vertex is a collection of data per 3D coordinate (Vertex Data will have 3 entries or vertices). This vertex's data is represented using vertex attributes that can contain any data we'd like, but for simplicity's sake let's assume that each vertex consists of just a 3D position and some color value.
 
-- Vertex Shader: This stage is customizable and it the first stage of the graphics pipeline. It takes as input a single vertex. The main purpose of the vertex shader is to transform 3D coordinates into different 3D coordinates (more on that later) and the vertex shader allows us to do some basic processing on the vertex attributes.
+- **Vertex Shader**: This stage is customizable and it the first stage of the graphics pipeline. It takes as input a single vertex. The main purpose of the vertex shader is to transform 3D coordinates into different 3D coordinates (more on that later) and the vertex shader allows us to do some basic processing on the vertex attributes.
 
-- Geometry Shader: The output of the vertex shader stage is optionally passed to the geometry shader. The geometry shader takes as input a collection of vertices that form a primitive and has the ability to generate other shapes by emitting new vertices to form new (or other) primitive(s). In this example case, it generates a second triangle out of the given shape.
+- **Geometry Shader**: The output of the vertex shader stage is optionally passed to the geometry shader. The geometry shader takes as input a collection of vertices that form a primitive and has the ability to generate other shapes by emitting new vertices to form new (or other) primitive(s). In this example case, it generates a second triangle out of the given shape.
 
-- Shape Assembly: The primitive assembly stage takes as input all the vertices (or vertex if GL_POINTS is chosen) from the vertex (or geometry) shader that form one or more primitives and assembles all the point(s) in the primitive shape given; in this case two triangles.
+- **Shape Assembly**: The primitive assembly stage takes as input all the vertices (or vertex if GL_POINTS is chosen) from the vertex (or geometry) shader that form one or more primitives and assembles all the point(s) in the primitive shape given; in this case two triangles.
 
-- Rasterization: The output of the primitive assembly stage is then passed on to the rasterization stage where it maps the resulting primitive(s) to the corresponding pixels on the final screen, resulting in fragments for the fragment shader to use. Before the fragment shaders run, clipping is performed. Clipping discards all fragments that are outside your view, increasing performance. A fragment in OpenGL is all the data required for OpenGL to render a single pixel.
+- **Rasterization**: The output of the primitive assembly stage is then passed on to the rasterization stage where it maps the resulting primitive(s) to the corresponding pixels on the final screen, resulting in fragments for the fragment shader to use. Before the fragment shaders run, clipping is performed. Clipping discards all fragments that are outside your view, increasing performance. A fragment in OpenGL is all the data required for OpenGL to render a single pixel.
 
-- Fragment Shader:  is to calculate the **final color** of a pixel and this is usually the stage where all the advanced OpenGL effects occur. Usually the fragment shader contains data about the 3D scene that it can use to calculate the final pixel color (like lights, shadows, color of the light and so on).
+- **Fragment Shader**:  is to calculate the **final color** of a pixel and this is usually the stage where all the advanced OpenGL effects occur. Usually the fragment shader contains data about the 3D scene that it can use to calculate the final pixel color (like lights, shadows, color of the light and so on).
 
-- Alpha Tests and Blending: This stage checks the corresponding depth (and stencil) value (we'll get to those later) of the fragment and uses those to check if the resulting fragment is in front or behind other objects and should be discarded accordingly. The stage also checks for alpha values (alpha values define the opacity of an object) and blends the objects accordingly. So even if a pixel output color is calculated in the fragment shader, the final pixel color could still be something entirely different when rendering multiple triangles.
+- **Alpha Tests and Blending**: This stage checks the corresponding depth (and stencil) value (we'll get to those later) of the fragment and uses those to check if the resulting fragment is in front or behind other objects and should be discarded accordingly. The stage also checks for alpha values (alpha values define the opacity of an object) and blends the objects accordingly. So even if a pixel output color is calculated in the fragment shader, the final pixel color could still be something entirely different when rendering multiple triangles.
 
 - In modern OpenGL we are required to define at least a vertex and fragment shader of our own (there are no default vertex/fragment shaders on the GPU).
 
-- Add notes related to VBO and VAO etcs.
+#### *Vertex Information*
+
+- OpenGL is a 3D graphics library so all coordinates that we specify in OpenGL are in 3D (x, y and z coordinate). OpenGL doesn't simply transform all your 3D coordinates to 2D pixels on your screen; OpenGL only processes 3D coordinates when they're in a specific range between -1.0 and 1.0 on all 3 axes (x, y and z). All coordinates within this so called normalized device coordinates range will end up visible on your screen (and all coordinates outside this region won't).
+
+- Below is a float array that contains the vertex information for a triangle. Each group of three floats represents one vertex of the triangle. Note that the z-coordinate (every third element) for each vertex is 0 since we are 2-D triangle
+
+  ```cpp
+  float vertices[] = {
+      -0.5f, -0.5f, 0.0f,
+      0.5f, -0.5f, 0.0f,
+      0.0f,  0.5f, 0.0f
+  };
+  ```
+
+- Normalized Device Coordinates (NDC) which is a small space where the x, y and z values vary from -1.0 to 1.0. Any coordinates that fall outside this range will be discarded/clipped and won't be visible on your screen. In this coordinate system, the point (0,0) is at the center of the screen unlike usual screen coordinates.
+
+- Your NDC coordinates will then be transformed to screen-space coordinates via the viewport transform using the data you provided with glViewport. The resulting screen-space coordinates are then transformed to fragments as inputs to your fragment shader.
+
+- The float array called vertices will be referred to as the vertex data from here on.
+
+- **Vertex Attributes** are created and specified within the vertex shader
+
+- With the vertex data defined, we'd like to send it as input to the first process of the graphics pipeline: the vertex shader. This is done by creating memory on the GPU where we store the vertex data, configure how OpenGL should  interpret the memory and specify how to send the data to the graphics card
+
+- We manage this memory via **Vertex Buffer Objects (VBOs)** that can store a large number of vertices in the GPU's memory.
+
+- The advantage of using VBOs is that you can send large batches of data all at once to the graphics card and keep it there if there's enough memory left without having to send data once vertex at a time.
+
+- Sending data from the CPU to the graphics card is relatively slow, so when possible, it's best to send as much data as we can. Once the data is in the GPU's memory, the vertex shader has almost instant access to it.
+
+- Each VBO has a unique ID corresponding to that buffer.
+
+- OpenGL allow multiple buffers to be bound at once as long as all the buffers are off a different type.
+
+- Once a buffer has been bound to a target via it's ID, any calls to that target will be used to configure the currently bound buffer.
+
+- The vertex shader allows us to specify any input we want in the form of vertex attributes and while this allows for great flexibility, it does mean we have to manually specify what part of our input data goes to which vertex attribute in the vertex shader. This means we have to specify how OpenGL should interpret the vertex data before rendering.
+
+- Recall that vertex attributes are created and specified within the vertex shader.
+
+- Each vertex shader gets takes its data from memory managed by a VBO and which VBO it takes its data from is determined by the VBO currently boud to GL_ARRAY_BUFFER when calling glVertexAttribPointer.
+
+- Once we have specified how OpenGl should intepret the vertex data, we should also enable the vertex attribute with glEnable VertexAttribArray giving the vertex attribute location as its argument
+
+- Vertex attributes are disabled by default.
+
+- Once the vertex attribute has been enabled, we have setup. In particular, we have initialized the vertex data ina buffer using a VBO, setup vertex and fragment shaders and also told OpenGl how to link the vertex data to the vertex shader's attributes (vertex attributes)
+
+- At this point, it is possible to then draw the resultant object. The process can easily become tedious if we have a lot of items to draw.
+
+- Why would it be tedious? It would be because binding the appropriate buffer objects and configuring all the vertex attributes for each of those objects quickly becomes a cumbersome process.
+
+- To that end, we use **Vertex Array Objects (VAOs)**.
+
+- VAOs can be bound just like VBOs and any subsequent vertex attribute calls from that point will be stored inside the VAO. This has the advantage that when configuring vertex attribute pointers you only have to make those calls once and whenever we want to draw the object, we can just bind the corresponding VAO.
+
+- This make switching between different vertex data and attribute configurations as easy as binding a different VAO. All the state that was just set is stored inside the VAO.
+
+- Core OpenGL requires that we use a VAO if not nothing will be drawn.
+
+- The VAO stores three things:
+  1. Calls to glEnableVertexAttribArray or glDisableVertexAttribArray
+  2. Vertex attribute configurations via glVertexAttribPointer
+  3. Vertex buffer objects associated with vertex attributes by calls to glVertexAttribPointer
+
+- Element Buffer Objects (EBOs) is a buffer just like a VBO that store indices that OpenGL uses to decide what vertices to draw. This is called indexed drawing.
+
+- VAOs can also keep track of EBO bindings
 
 #### *Shaders*
 
