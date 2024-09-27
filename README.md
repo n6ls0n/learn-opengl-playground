@@ -235,7 +235,9 @@ Below are some notes I took, feel free to remove them.
 
 #### *Shaders*
 
-- Shaders are little programs that rest on the GPU. These programs are run for each specific section of the graphics pipeline. In a basic sense, shaders are nothing more than programs transforming inputs to outputs. Shaders are also very isolated programs in that they're not allowed to communicate with each other; the only communication they have is via their inputs and outputs.
+- Shaders are little programs that rest on the GPU. These programs are run for each specific section of the graphics pipeline. In a basic sense, shaders are nothing more than programs transforming inputs to outputs.
+
+- Shaders are also very isolated programs in that they're not allowed to communicate with each other; the only communication they have is via their inputs and outputs.
 
 - Shaders are written in the C-like language GLSL. GLSL is tailored for use with graphics and contains useful features specifically targeted at vector and matrix manipulation.
 
@@ -243,11 +245,92 @@ Below are some notes I took, feel free to remove them.
 
 - Each shader's entry point is at its main function where we process any input variables and output the results in its output variables.
 
-- When we're talking specifically about the vertex shader each input variable is also known as a **vertex attribute**. There is a maximum number of vertex attributes we're allowed to declare limited by the hardware. OpenGL guarantees there are always at least 16 4-component vertex attributes available, but some hardware may allow for more which you can retrieve by querying GL_MAX_VERTEX_ATTRIBS. This often returns the minimum of 16 which should be more than enough for most purposes.
+- A sample shader:
 
-- GLSL has, like any other programming language, data types for specifying what kind of variable we want to work with. GLSL has most of the default basic types we know from languages like C: int, float, double, uint and bool. GLSL also features two container types that we'll be using a lot, namely vectors and matrices.
+  ```cpp
+  #version version_number
+  in type in_variable_name;
+  in type in_variable_name;
+
+  out type out_variable_name;
+
+  uniform type uniform_name;
+
+  void main()
+  {
+  // process input(s) and do some weird graphics stuff
+  ...
+  // output processed stuff to output variable
+  out_variable_name = weird_stuff_we_processed;
+  }
+  ```
+
+- When we're talking specifically about the vertex shader each input variable is also known as a **Vertex Attribute**.
+
+- There is a maximum number of vertex attributes we're allowed to declare limited by the hardware. OpenGL guarantees there are always at least 16 4-component vertex attributes available, but some hardware may allow for more which you can retrieve by querying GL_MAX_VERTEX_ATTRIBS. This often returns the minimum of 16 which should be more than enough for most purposes.
+
+- GLSL has, like any other programming language, data types for specifying what kind of variable we want to work with. GLSL has most of the default basic types we know from languages like C: int, float, double, uint and bool.
+
+- GLSL also features two container types that we'll be using a lot, namely vectors and matrices.
+
+- A vector in GLSL is a 2,3 or 4 component container for any basic types just mentioned. they can take the following form(n represents the number of components)
+  - vecn: default vector of n floats
+  - bvecn: a vector of n booleans
+  - ivecn: a vector of n integers
+  - uvecn; a vector of n unsigned integers
+
+- Components of a vector can be accessed via vec.x where x is the first component of the vector. You can use .x, .y, .z and .w to access the first, second, third and fourth component respectively.
+
+- GLSL also allows you to use **rgba** for colors and **stqp** for texture coordinates, accessing the same components.
 
 - Swizzling is a feature in GLSL (OpenGL Shading Language) and other shader languages that allows you to easily select and rearrange components of vectors.
+
+- It allows us to use any combination of up to 4 letters to create a new vector as long as the original vector has those components. It is not allowed to access the .z component of a vec2.
+
+- Vectors can also be passed as arguments to different vector constructor calls
+
+- Some examples of swizzling below:
+
+  ```cpp
+  vec2 someVec;
+  vec4 differentVec = someVec.xyxx;
+  vec3 anotherVec = differentVec.zyw;
+  vec4 otherVec = someVec.xxxx + anotherVec.yxzy;
+
+  vec2 vect = vec2(0.5, 0.7);
+  vec4 result = vec4(vect, 0.0, 0.0);
+  vec4 otherResult = vec4(result.xyz, 1.0);
+  ```
+
+- Shaders form part of a whole and so each shader needs to have input(s) and output(s) so that data can be moved around.
+
+- The **in** and **out** keywords are used to specifically for this movement.
+
+- Each shader can specify inputs and outputs using those keywords and wherever an output variable matches with an input variable of the next shader they're passed along.
+
+- There are a few differences between the vertex and the fragment shader
+
+- For the vertex shader, it should receive some form of input otherwise it would be pretty ineffective. The vertex shader receives it's input straight from vertex data.
+
+- To define how the vertex data is organized, we specify the input variables with location metadata so we can configure the vertex attributes on the CPU.
+
+- Thus, the vertex shader requires an extra layout specification
+
+  ```cpp
+  layout (location = 0)
+  ```
+
+  for its inputs so we can link it with the vertex data.
+
+- It is possible to omit the layout specifier and query for the attribute locations in your OpenGl code via glGetAttribLocation but it's preferable to set them in the vertex shader
+
+- For the fragment shaders, how they differ from vertex shaders is that the fragment shader requires a vec4 color output variable since the fragment shader needs to generate a final output color.
+
+- If you fail to specify an output color in your fragment shaders, the color buffer output for those fragments will be undefined(which usually means OpenGl will render them either black or white)
+
+- So if we want to send data from one shader to the other we'd have to declare an output in the sending shader and a similar input in the receiving shader.
+
+- When the types and the names are equal on both sides, OpenGL will link those variables together and then it is possible to send data between shaders(this is done when linking a program object)
 
 ### Lighting
 
