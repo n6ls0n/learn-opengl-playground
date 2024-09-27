@@ -332,6 +332,14 @@ Below are some notes I took, feel free to remove them.
 
 - When the types and the names are equal on both sides, OpenGL will link those variables together and then it is possible to send data between shaders(this is done when linking a program object)
 
+- Uniforms are another way to pass data from our application on the CPU to the shaders on the GPU
+
+- Uniforms are slightly different compared to vertex attributes in two ways namely:
+  1. They are global in the sense that a uniform is unique per shader program object and can be accessed from any shader at any stage in the shader program
+  2. Whatever you set the uniform value to, uniforms will keep their values until they're either reset or updated
+
+- If you declare a uniform that isn't used anywhere in your GLSL code, the compiler will silently remove the variable from the compiled version which is the cause of several frustrating errors.
+
 ### Lighting
 
 ### Model Loading
