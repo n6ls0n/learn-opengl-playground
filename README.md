@@ -362,8 +362,12 @@ Below are some notes I took, feel free to remove them.
 
 ### Helpful Links
 
-- <https://antongerdelan.net/opengl/>
+- Another OpenGL tutorial series: <https://antongerdelan.net/opengl/>
 
-- <https://learnopengl.com/>
+- Link to the book for this repo: <https://learnopengl.com/>
 
-- <https://open.gl/introduction>
+- Another OpenGL Tutorial Series: <https://open.gl/introduction>
+
+- OpenGL Documentation: <https://docs.gl/>
+
+- GLFW Documentation: <https://www.glfw.org/docs/latest/>
