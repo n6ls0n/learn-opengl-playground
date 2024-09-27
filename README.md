@@ -322,7 +322,15 @@ Below are some notes I took, feel free to remove them.
 
   for its inputs so we can link it with the vertex data.
 
-- It is possible to omit the layout specifier and query for the attribute locations in your OpenGl code via glGetAttribLocation but it's preferable to set them in the vertex shader
+- It is possible to omit the layout specifier and query for the attribute locations in your OpenGl code via glGetAttribLocation but it's preferable to set them in the vertex
+
+- Vertex shaders have a built-in output variable called **gl_Position**. It is used to specify the final position of a vertex in the clip space. It's value is used by the OpenGL pipeline to determine he position of the vertex in the screen space.
+
+- In the vertex shader, you typically assign a value to gl_Position using the vec4 data type, which represents a 4-component vector (x,y,z,w).
+
+- gl_Position is a special variable because it is used directly by the OpenGl pipeline to determine the position of the vertex in the screen space. It doesn;t need to be declared as an output variable and it should not be used as an input variable in the fragment shader
+
+- If you need to access the position of a vertex in the fragment shader, you will need to pass it as a seperate output variable from the vertex shader.
 
 - For the fragment shaders, how they differ from vertex shaders is that the fragment shader requires a vec4 color output variable since the fragment shader needs to generate a final output color.
 
@@ -339,6 +347,8 @@ Below are some notes I took, feel free to remove them.
   2. Whatever you set the uniform value to, uniforms will keep their values until they're either reset or updated
 
 - If you declare a uniform that isn't used anywhere in your GLSL code, the compiler will silently remove the variable from the compiled version which is the cause of several frustrating errors.
+
+-
 
 ### Lighting
 
