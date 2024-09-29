@@ -20,6 +20,7 @@ Below are some notes I took, feel free to remove them.
   - [Graphics Pipeline](#graphics-pipeline)
   - [Vertex Information](#vertex-information)
   - [Shaders](#shaders)
+  - [Textures](#textures)
 - [Lighting](#lighting)
 - [Model Loading](#model-loading)
 - [Advanced OpenGL](#advanced-opengl)
@@ -348,7 +349,41 @@ Below are some notes I took, feel free to remove them.
 
 - If you declare a uniform that isn't used anywhere in your GLSL code, the compiler will silently remove the variable from the compiled version which is the cause of several frustrating errors.
 
--
+#### *Textures*
+
+- A texture is a 2D image (possibly 1D or 3D image) used to add detail to an object
+
+- Because a lot of details can be inserted into a single image, we can give the illusion that the object is extremely detailed without having to specify extra vertices.
+
+- In order to map a texture to the triangle we need to tel each vertex of the triangle which part of the texture it corresponds to.
+
+- Thus, each vertex should have a **texture coordinate** associated with them that specifies what part of the texture image to sample from. The rest of the triangle is then filled in via fragment interpolation
+
+- Texture coordinates can range from 0 to 1 in the x and y axis (asusmind 2D images)
+
+- **Sampling** is the act of retrieving the texture color using texture coordinates
+
+- Texture coordinates start at (0,1) for the lower left corner of a texture image to (1,1) for the upper right corner of the a texture image
+
+- Texture sampling has a loose interpretation and can be done in many different ways and thus its our job to tell OpenGl how it should sample its textures
+
+- There are multiple ways for OpenGL to handle sampling a texture when we specify coordinates outside the default range
+
+- Texture coordinates do not depend on the resolution but can be any floating point value, thus OpenGl has to figure out which texture pixel (**texel**) to map the texture coordinate to. This process is known as **texture filtering**
+
+- Texture filtering is very important in cases where we have a very large object and a low resolution texture
+
+- GL_NEAREST (also known as nearest neighbour or point filtering) is the default texture filtering method of OpenGL
+
+- Texture filtering can be set for magnifying and minifying operations(when scaling up or downwards) so you could for example use nearest neighbour filtering when textures are scaled downwards and linear filtering for upscaled textures
+
+- Mipmaps are a collection of texture images where each subsequent texture is twice as small compared to the previous one
+
+- The idea behind mipmaps is that after a certain distance threshold from the viewer, OpenGL will use a different mipmap texture that best suits the distance to the object. Because the object is far away, the smaller resolution will not be noticeable to the user.
+
+- OpenGL is then able to sample the correct texels and there's less cache memory involved when sampling that part of the mipmaps.
+
+
 
 ### Lighting
 
