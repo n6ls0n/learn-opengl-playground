@@ -21,6 +21,7 @@ Below are some notes I took, feel free to remove them.
   - [Vertex Information](#vertex-information)
   - [Shaders](#shaders)
   - [Textures](#textures)
+  - [Transformations](#transformations)
 - [Lighting](#lighting)
 - [Model Loading](#model-loading)
 - [Advanced OpenGL](#advanced-opengl)
@@ -383,7 +384,20 @@ Below are some notes I took, feel free to remove them.
 
 - OpenGL is then able to sample the correct texels and there's less cache memory involved when sampling that part of the mipmaps.
 
+#### *Transformations*
 
+- Transformations of vectors occur via the utilization of matrices
+
+- Matrix multiplication is not commutative
+
+- The matrices used to carry out these transformations are called transformation matrices
+
+- If you have multiple transformation matrices, they will evaluated from right-to-left
+
+- The recommended order of matrix transformations is:
+  1. Scaling
+  2. Rotation
+  3. Translation
 
 ### Lighting
 
