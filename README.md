@@ -22,6 +22,7 @@ Below are some notes I took, feel free to remove them.
   - [Shaders](#shaders)
   - [Textures](#textures)
   - [Transformations](#transformations)
+  - [Coordinate Systems](#coordinate-systems)
 - [Lighting](#lighting)
 - [Model Loading](#model-loading)
 - [Advanced OpenGL](#advanced-opengl)
@@ -398,6 +399,47 @@ Below are some notes I took, feel free to remove them.
   1. Scaling
   2. Rotation
   3. Translation
+
+#### *Coordinate Systems*
+
+- Recall that OpenGL expects all the vertices, that we want to be visible, to be in the Normalized Device Coordinates (NDC) after each vertex shader run.
+
+- What we the users do is specify the coordinates in a range (or space) we determine ourselves and in the vertex shader, transform these coordinates to NDC
+
+- These new NDC are then given to the Rasterizer to transform them to 2D cooridinates/pixels on your screen
+
+- Transforming coordinates to NDC is usually accomplished in a step-by-step fashion where we transform an object's vertices to several coordinate systems before finally transforming them to NDC.
+
+- The advantage of transforming them to several intermediate coordinate systems is that some operations/ calculations are easier in certain coordinate systems.
+
+- There are 5 coordinate systems that are important:
+  1. Local Space( Object Space)
+  2. World Space
+  3. View Space
+  4. Clip Space
+  5. Screen Space
+
+- These are all the states our vertices will be transformed to in before finally ending up as fragments
+
+- To transform the coordinates from one space to the next coordinate space we'll use several transformation matrices of the which the most important are the model, view and projection matrix
+
+- Our vertex coordinates first start in local space as local coordinates and are then further processed to world coordinates, view coordinates, clip coordinates and eventually end up as screen coordinates
+
+- For **Local Space**, it is the coordinate space that is local to your object i.e. where your object begins in. Imagine we have a cube that was created in a modelling software package. The origin of the cube will probably be at (0,0,0) even though the cue may end in a different location in the final application.
+
+- For **World Space**, these are the coordinates of all the vertices relative to a (game) world. This is the coordinate space where you want your objects transformed to in such a way that they're all scattered around the place. The **Model Matrix** is used to transform from local to world space
+
+- For **View Space**, this is what is usually referred to as the camera of OpenGL (it is sometimes known as the camera space or eye space). THe view space is the result of transforming your world space coordinates to coordinates that are in front of the user's view. The view space is thus the space seen as the camera's point of view. The **View Matrix** is used to achive the transformation from the World Space to the View Space
+
+- At the end of each vertex shader run, OpenGL expects the coordinates to be withing a specific range and any coordinates that fall outside that range are clipped. This is where the **Clip Space** gets its name from. The **Projection Matrix** is used to transform from the View Space to the Clip Space. Note that if only a part of a primitive (e.g triangle) OpenGL will reconstruct the triangle as one or more triangles to fit inside the clipping range.
+
+- The viewing box that a Projection Matrix creates is called a frustum and each coordinate that ends ip inside this frustum will end up on the user's screen. The tpotal process to convert coordinates within a specified range to NDC that can easily be mapped to 2D view-space coordinates is called **Projection** since the projection matrix projects the 3D coordinates to the 2D NDC coordinates
+
+- Once all the vertices are converted to Clip Space, a final projection called perspective division is performed where we divide the x, y and z components of the position vectors by the vector's homogenous w component; perspective division is what transforms the 4D clip space coordinates to 3D NDC. This step is peformed automatically at the end of the vertex shader step
+
+- After this stage, the resulting coordinates are mapped to screen coordinates (using the settings of glViewPort) and turned into fragments
+
+- The projection matrix to transform view coordinates to clip coordinates usually takes two different forms: **Orthographic Projection Matrix**  or  **Perspective Projection Matrix**
 
 ### Lighting
 
