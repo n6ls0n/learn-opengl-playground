@@ -406,7 +406,7 @@ Below are some notes I took, feel free to remove them.
 
 - What we the users do is specify the coordinates in a range (or space) we determine ourselves and in the vertex shader, transform these coordinates to NDC
 
-- These new NDC are then given to the Rasterizer to transform them to 2D cooridinates/pixels on your screen
+- These new NDC are then given to the Rasterizer to transform them to 2D coordinates/pixels on your screen
 
 - Transforming coordinates to NDC is usually accomplished in a step-by-step fashion where we transform an object's vertices to several coordinate systems before finally transforming them to NDC.
 
@@ -433,13 +433,37 @@ Below are some notes I took, feel free to remove them.
 
 - At the end of each vertex shader run, OpenGL expects the coordinates to be withing a specific range and any coordinates that fall outside that range are clipped. This is where the **Clip Space** gets its name from. The **Projection Matrix** is used to transform from the View Space to the Clip Space. Note that if only a part of a primitive (e.g triangle) OpenGL will reconstruct the triangle as one or more triangles to fit inside the clipping range.
 
-- The viewing box that a Projection Matrix creates is called a frustum and each coordinate that ends ip inside this frustum will end up on the user's screen. The tpotal process to convert coordinates within a specified range to NDC that can easily be mapped to 2D view-space coordinates is called **Projection** since the projection matrix projects the 3D coordinates to the 2D NDC coordinates
+- The viewing box that a Projection Matrix creates is called a frustum and each coordinate that ends ip inside this frustum will end up on the user's screen. The total process to convert coordinates within a specified range to NDC that can easily be mapped to 2D view-space coordinates is called **Projection** since the projection matrix projects the 3D coordinates to the 2D NDC coordinates
 
-- Once all the vertices are converted to Clip Space, a final projection called perspective division is performed where we divide the x, y and z components of the position vectors by the vector's homogenous w component; perspective division is what transforms the 4D clip space coordinates to 3D NDC. This step is peformed automatically at the end of the vertex shader step
+- Once all the vertices are converted to Clip Space, a final projection called perspective division is performed where we divide the x, y and z components of the position vectors by the vector's homogenous w component; perspective division is what transforms the 4D clip space coordinates to 3D NDC. This step is performed automatically at the end of the vertex shader step
 
 - After this stage, the resulting coordinates are mapped to screen coordinates (using the settings of glViewPort) and turned into fragments
 
 - The projection matrix to transform view coordinates to clip coordinates usually takes two different forms: **Orthographic Projection Matrix**  or  **Perspective Projection Matrix**
+
+- **Orthographic Projection Matrix** defines a cube-like frustum box that defines the clipping space where each vertex outside this box is clipped . When creating an Orthographic Projection Matrix, we specify the width, height and length of the visible frustum. All the coordinates inside this frustum will end up withing the NDC range after transformed by its matrix and thus wont' be clipped
+
+- The frustum defines the visible coordinates is specified by a width, a height and a near and far plane. Any coordinate in front of the near plane is clipped and the same applies to the coordinates behind the far plane. The orthographic frustum directly maps all the coordinates inside the frustum to NDC without any special side effects since it won't touch the w component of the transformed vector; if the w component remains equal to 1.0, perspective division won't change the coordinates
+
+- The **Perspective Projection Matrix** is used to create the perspective effect. It maps a given frustum range to clip space but also manipulates the w value of each vertex coordinate in such a way that the further away a vertex coordinate is from the viewer, the higher the w component becomes
+
+- Once the coordinates are transformed to clip space they are in the range -w to w (anything outside this range is clipped). OpenGL requires that the visible coordinates fall between range -1.0 to 1.0 as the final vertex shader output, thus once the coordinates are in clip space, perspective division is applied to the clip space coordinates. Each component of the vertex coordinate is divided by its w component  ( (x/w), (y/w), (z/w) ) giving smaller vertex coordinates the further away a vertex is from the viewer.
+
+- This is another reason why the w component is important, since it helps us with perspective projection. The resulting coordinates are then in normalized device.
+
+- The final calculation to get the clip space coordinates becomes: V_clip = M_projection . M_view . M_model . V_local
+
+- The resulting vertex V_clip is then stored in gl_Position in the vertex shader and OpenGL will then automatically perform perspective division and clipping
+
+- Recall that the the output of the vertex shader requires the coordinates to be in clip space which is what was done with the transformation matrices above. OpenGL then performs perspective division on the clip-space coordinates to transform them to NDC.
+
+- OpenGL then uses the parameters from glViewPort to map the NDC to screen coordinates where each coordinate corresponds to a point on your screen. This process is called **Viewport Transform**
+
+- OpenGL is a Right-Handed System
+
+- OpenGL stores all its depth information in a z-buffer also known as a depth buffer. GLFW automatically creates such a buffer for you (just like it has a color-buffer that stores the colors of the output image)
+
+- The depth is stored within each fragment (as the fragment's z value) and whenever the fragment wants to output its color, OpenGL compares its depth values with the z-buffer. If the current fragment is behind the other fragment, it is discarded, otherwise it is overwritten. This process is called **Depth Testing** and is done automatically by OpenGL
 
 ### Lighting
 
@@ -462,3 +486,5 @@ Below are some notes I took, feel free to remove them.
 - OpenGL Documentation: <https://docs.gl/>
 
 - GLFW Documentation: <https://www.glfw.org/docs/latest/>
+
+- Calculating the Perspective and Orthographic Projection Matrixes <https://www.songho.ca/opengl/gl_projectionmatrix.html>
