@@ -25,6 +25,12 @@ Below are some notes I took, feel free to remove them.
   - [Coordinate Systems](#coordinate-systems)
   - [Camera](#camera)
 - [Lighting](#lighting)
+  - [Colors](#colors)
+  - [Basic Lighting](#basic-lighting)
+  - [Materials](#materials)
+  - [Lighting maps](#lighting-maps)
+  - [Light casters](#light-casters)
+  - [Multiple lights](#multiple-lights)
 - [Model Loading](#model-loading)
 - [Advanced OpenGL](#advanced-opengl)
 - [Advanced Lighting](#advanced-lighting)
@@ -484,6 +490,30 @@ Below are some notes I took, feel free to remove them.
   3. Roll: This represents how much the body is rolling around a fixed axis
 
 ### Lighting
+
+#### *Colors*
+
+- 
+
+#### *Basic Lighting*
+
+-
+
+#### *Materials*
+
+-
+
+#### *Lighting maps*
+
+-
+
+#### *Light casters*
+
+-
+
+#### *Multiple lights*
+
+-
 
 ### Model Loading
 
