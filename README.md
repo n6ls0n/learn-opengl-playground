@@ -23,6 +23,7 @@ Below are some notes I took, feel free to remove them.
   - [Textures](#textures)
   - [Transformations](#transformations)
   - [Coordinate Systems](#coordinate-systems)
+  - [Camera](#camera)
 - [Lighting](#lighting)
 - [Model Loading](#model-loading)
 - [Advanced OpenGL](#advanced-opengl)
@@ -429,7 +430,7 @@ Below are some notes I took, feel free to remove them.
 
 - For **World Space**, these are the coordinates of all the vertices relative to a (game) world. This is the coordinate space where you want your objects transformed to in such a way that they're all scattered around the place. The **Model Matrix** is used to transform from local to world space
 
-- For **View Space**, this is what is usually referred to as the camera of OpenGL (it is sometimes known as the camera space or eye space). THe view space is the result of transforming your world space coordinates to coordinates that are in front of the user's view. The view space is thus the space seen as the camera's point of view. The **View Matrix** is used to achive the transformation from the World Space to the View Space
+- For **View Space**, this is what is usually referred to as the camera of OpenGL (it is sometimes known as the camera space or eye space). THe view space is the result of transforming your world space coordinates to coordinates that are in front of the user's view. The View Space is thus the space seen as the camera's point of view. The **View Matrix** is used to achieve the transformation from the World Space to the View Space
 
 - At the end of each vertex shader run, OpenGL expects the coordinates to be withing a specific range and any coordinates that fall outside that range are clipped. This is where the **Clip Space** gets its name from. The **Projection Matrix** is used to transform from the View Space to the Clip Space. Note that if only a part of a primitive (e.g triangle) OpenGL will reconstruct the triangle as one or more triangles to fit inside the clipping range.
 
@@ -464,6 +465,23 @@ Below are some notes I took, feel free to remove them.
 - OpenGL stores all its depth information in a z-buffer also known as a depth buffer. GLFW automatically creates such a buffer for you (just like it has a color-buffer that stores the colors of the output image)
 
 - The depth is stored within each fragment (as the fragment's z value) and whenever the fragment wants to output its color, OpenGL compares its depth values with the z-buffer. If the current fragment is behind the other fragment, it is discarded, otherwise it is overwritten. This process is called **Depth Testing** and is done automatically by OpenGL
+
+#### *Camera*
+
+- When Camera/View Space is talked about, it means we're talking about all the vertex coordinates as seen from the camera's perspective as the origin of the scene. The View Matrix transforms all the world coordinates into the view coordinates that are relative to the camera's position and direction.
+
+- To define a camera, we need its position in world space, the direction it's looking at, a vector pointing to the right and a vector pointing upwards from the camera.
+
+- In effect, a coordinate system is being created with 3 perpendicular axes with the camera's position as the origin
+
+- With matrices, if you define a coordinate space using 3 perpendicular axes, you can create a matrix with those 3 axes plus a translation vector and then you can transform any vector to that coordinate space by multiplying it with this matrix. That is exactly what the  **LookAt** matrix does
+
+- Euler angles are 3 values that can represent any rotation in 3D
+
+- They are:
+  1. Pitch: This is the angle that depicts how much we're looking up or down
+  2. Yaw: This represents the magnitude we are looking to the left or right
+  3. Roll: This represents how much the body is rolling around a fixed axis
 
 ### Lighting
 
