@@ -368,7 +368,7 @@ Below are some notes I took, feel free to remove them.
 
 - Thus, each vertex should have a **texture coordinate** associated with them that specifies what part of the texture image to sample from. The rest of the triangle is then filled in via fragment interpolation
 
-- Texture coordinates can range from 0 to 1 in the x and y axis (asusmind 2D images)
+- Texture coordinates can range from 0 to 1 in the x and y axis (assuming 2D images)
 
 - **Sampling** is the act of retrieving the texture color using texture coordinates
 
@@ -501,7 +501,16 @@ Below are some notes I took, feel free to remove them.
 
 #### *Basic Lighting*
 
--
+- Lighting in OpenGl is based on approximations of reality using simplified models that are much easier to process and look relatively similar.
+
+- These lighting models are based ont the physics of light as we understand it and one of such models is called the **Phong Lighting Model**.
+
+- It consists of 3 components:
+  1. **Ambient Lighting**: The ambient light is used to give the object some color. The idea behind this is that even when it is dark there is still some light somewhere is the universe that will land on the object in question.
+
+  2. **Diffuse Lighting**: This simulates the directional impact that a light object has on an object. It is the most visually significant component of the lighting model. The more a part of an object faces the light source, the brighter it becomes
+
+  3. **Specular Lighting**: This simulates the bright spot of a light that appears on shiny objects. Specular highlights are more inclined to the color of light than to the color of the object
 
 #### *Materials*
 
