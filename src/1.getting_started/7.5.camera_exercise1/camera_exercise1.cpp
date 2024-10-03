@@ -1,6 +1,6 @@
 // Question:See if you can transform the camera class in such a way that it becomes a true fps camera where you cannot fly; you can only look around while staying on the xz plane
 
-// Since the solution for this question modifies the camera class, a full running solution isn't provided but you can try it yourself.
+// Since the solution for this question modifies the camera class found in learnopengl/camera.h, a full running solution isn't provided but you can try it yourself.
 
 // This function is found in the camera class. What we basically do is keep the y position value at 0.0f to force our
 // user to stick to the ground.
