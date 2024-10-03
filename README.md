@@ -493,7 +493,11 @@ Below are some notes I took, feel free to remove them.
 
 #### *Colors*
 
-- 
+- The color of an object we see in real life is not the color it actually has but the color reflected from the object. The colors that aren't absorbed by the object is the color we perceive of it
+
+- The same rules of color reflection apply in graphics land. When we define a light source in OpenGL, we want to give this light source a color.
+
+- Assuming the light source has white color, if we then multiply the light source's color value with an object's color value, the resulting color would be the reflected color of the object (and thus it's perceived color)
 
 #### *Basic Lighting*
 
