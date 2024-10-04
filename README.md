@@ -552,4 +552,4 @@ Below are some notes I took, feel free to remove them.
 
 - Lightweight, cross-platform & full-featured shader IDE: <https://github.com/dfranx/SHADERed>
 
-Shader Toy: <https://www.shadertoy.com/>
+- Shader Toy: <https://www.shadertoy.com/>
