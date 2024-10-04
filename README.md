@@ -553,3 +553,5 @@ Below are some notes I took, feel free to remove them.
 - Lightweight, cross-platform & full-featured shader IDE: <https://github.com/dfranx/SHADERed>
 
 - Shader Toy: <https://www.shadertoy.com/>
+
+- Understanding the Normal Matrix - <http://www.lighthouse3d.com/tutorials/glsl-12-tutorial/the-normal-matrix/>
