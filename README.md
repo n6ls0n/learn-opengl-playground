@@ -549,3 +549,7 @@ Below are some notes I took, feel free to remove them.
 - GLFW Documentation: <https://www.glfw.org/docs/latest/>
 
 - Calculating the Perspective and Orthographic Projection Matrixes <https://www.songho.ca/opengl/gl_projectionmatrix.html>
+
+- Lightweight, cross-platform & full-featured shader IDE: <https://github.com/dfranx/SHADERed>
+
+Shader Toy: <https://www.shadertoy.com/>
