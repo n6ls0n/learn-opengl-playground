@@ -514,7 +514,7 @@ Below are some notes I took, feel free to remove them.
 
 #### *Materials*
 
--
+- In the real world, different objects have a different reaction to light, as such more granular definitions must be created to account for the different components of the Phong Lighting Model being used.
 
 #### *Lighting maps*
 
