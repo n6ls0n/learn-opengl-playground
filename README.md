@@ -518,7 +518,17 @@ Below are some notes I took, feel free to remove them.
 
 #### *Lighting maps*
 
--
+- Real-life objects are usually composed of multiple materials.
+
+- To this end, rather than specifying a single color for all three components(ambient, diffuse and specular), a **diffuse maps** and **specular maps** are used to make the simulation more realistic
+
+- These maps allow us to influence the diffuse and specular components with way more precision
+
+- With **diffuse maps**, what we want is for some way to set the diffuse colors of an object for each individual fragment. A system that can retrieve a color value based on the fragment's position on the object.
+
+- In effect diffuse maps are just textures. The underlying principle is the same. We are using an image wrapped around an object that we can index for unique color values per fragment. In lit scenes, we refere to them as a diffuse map since a texture image represents all of the object's diffuse colors
+
+
 
 #### *Light casters*
 
