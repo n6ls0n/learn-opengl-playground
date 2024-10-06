@@ -528,7 +528,7 @@ Below are some notes I took, feel free to remove them.
 
 - In effect diffuse maps are just textures. The underlying principle is the same. We are using an image wrapped around an object that we can index for unique color values per fragment. In lit scenes, we refere to them as a diffuse map since a texture image represents all of the object's diffuse colors
 
-
+- Specular maps add another layer of realism to the object. Assuming we had a diffuse map (read texture) that contained "wood" and "steel". The diffuse map would lead to the the entire surface looking like light it being reflected off of it which would not be realistic. Adding a specular map would then lead to just the metallic part looking like light was being reflected off of it.
 
 #### *Light casters*
 
