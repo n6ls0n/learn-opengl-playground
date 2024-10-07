@@ -532,6 +532,17 @@ Below are some notes I took, feel free to remove them.
 
 #### *Light casters*
 
+- A light source that casts lights upon objects is called a light caster. Three types of light casters are:
+  1. Directional Light
+  2. Point Light
+  3. Spot Light
+
+- **Directional Light** is when the light source is modelled to be infinitely far away since all it's light rays have the same direction; the light rays can be thought of to be independent of the location of the light source.
+
+- The sun is a great example of a directional light source.
+
+- For light sources that are modelled as Directional Light, it does not matter how each object relates to the light source's position since the light direction remains the same for each object in the scene. Because the light's direction vector stays the same, the lighting calculations will be similar for each object in the scene
+
 -
 
 #### *Multiple lights*
