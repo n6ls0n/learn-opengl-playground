@@ -543,7 +543,9 @@ Below are some notes I took, feel free to remove them.
 
 - For light sources that are modelled as Directional Light, it does not matter how each object relates to the light source's position since the light direction remains the same for each object in the scene. Because the light's direction vector stays the same, the lighting calculations will be similar for each object in the scene
 
--
+- In traditional lighting calculations, the light direction is defined from the fragment to the light source however, most people prefer to define the global light direction from the light source to the fragment. Therefore, a negation may be in order when dealing the light source vectors depending on their definition
+
+- Some people prefer to define the light's position and direction vectors as vec4's instead of vec3's. When we define position vectors as a vec4 it is important to set the w component to 1.0 so that the translations and projections are properly applied. However, when defining a direction vector as a vec4, we don't want translations to have an effect so then we define the w component as 0.0
 
 #### *Multiple lights*
 
