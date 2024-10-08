@@ -547,6 +547,12 @@ Below are some notes I took, feel free to remove them.
 
 - Some people prefer to define the light's position and direction vectors as vec4's instead of vec3's. When we define position vectors as a vec4 it is important to set the w component to 1.0 so that the translations and projections are properly applied. However, when defining a direction vector as a vec4, we don't want translations to have an effect so then we define the w component as 0.0
 
+- A **Point Light** is a light source with a given position somewhere in a world that illuminates in all directions, where the light rays fade out over distance. Examples are light bulbs and torches.
+
+- **Attenuation** is the act of reducing the intensity of light over the distance that it travels. One way to achieve this is to simply use a linear equation. Such an equation would linearly reduce the light intensity over the a distance this making sure that objects at a distance are less bright. While this works, it tends to look fake. In the real world, a quadratic equation is used that more closely mimics how light actually attenuates.
+
+- The equation has mulitiple terms each of with it's own constant that is set to certain number based on a number of factors including the distance of the light source from the object
+
 #### *Multiple lights*
 
 -
