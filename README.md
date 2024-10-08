@@ -551,7 +551,15 @@ Below are some notes I took, feel free to remove them.
 
 - **Attenuation** is the act of reducing the intensity of light over the distance that it travels. One way to achieve this is to simply use a linear equation. Such an equation would linearly reduce the light intensity over the a distance this making sure that objects at a distance are less bright. While this works, it tends to look fake. In the real world, a quadratic equation is used that more closely mimics how light actually attenuates.
 
-- The equation has mulitiple terms each of with it's own constant that is set to certain number based on a number of factors including the distance of the light source from the object
+- The equation has multiple terms each of with it's own constant that is set to certain number based on a number of factors including the distance of the light source from the object
+
+- A **Spot Light** is a light source that is located somewhere in the environment that, instead of shooting light rays in all directions, only shoots them in a specific direction. The result is that only the objects withing a certain radius of the spotlight's direction are lit and everything else is dark.
+
+- In OpenGL, a spotlight is represented by a world-space position, a direction and a cutoff angle that specifies the radius of the spotlight. For each fragment, we calculate if the fragment is between the spotlight's cutoff directions (and thus in its cone) and if so, we lit the fragment accordingly.
+
+- In practice, to  check if the fragment is withing the spotlight, the dot product between the direction vector of the from the fragment to the light and the direction of the light emanating from a spotlight and compare the result to the cutoff angle
+
+- A flashlight is a special type of spotlight that is at the viewer's position and usually aimed straight ahead from the player's perspective. A flashlight is basically a normal spotlight but with it's position and direction continually updated based on the player's position and orientation
 
 #### *Multiple lights*
 
