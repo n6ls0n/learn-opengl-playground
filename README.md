@@ -561,6 +561,8 @@ Below are some notes I took, feel free to remove them.
 
 - A flashlight is a special type of spotlight that is at the viewer's position and usually aimed straight ahead from the player's perspective. A flashlight is basically a normal spotlight but with it's position and direction continually updated based on the player's position and orientation
 
+- To create the effect of a smoothly-edged spotlight we would want to simulate a spotlight having an inner and an outer cone. The idea would be to create an outer cone that gradually dims the light from the inner cone to the edges of the outer cone.
+
 #### *Multiple lights*
 
 -
