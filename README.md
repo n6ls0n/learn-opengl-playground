@@ -565,7 +565,15 @@ Below are some notes I took, feel free to remove them.
 
 #### *Multiple lights*
 
--
+- When using more than one light source, we encapsulate the lighting calculations into GLSL functions. The reason is because the code can quickly get complicated when lighting computations are done with multiple lighting types, where each requires different computations
+
+- Functions in GLSL are just like C functions. We have a function name, a return type and we need to declare a prototype at the top of the code file if the function hasn't been declared yet before the main function.
+
+- Each light type will have it's own set of functions.
+
+- When using multiple light sources in a scene, the approach is as follows:
+  1. There is a single color vector that represents the fragment's output color.
+  2. For each light, the light's contribution to the fragment is added to this output color vector. In effect, each light will calculate its individual impact and contribute that to the final output color vector
 
 ### Model Loading
 
