@@ -4,6 +4,16 @@ This is a clone of <https://github.com/JoeyDeVries/LearnOpenGL> that allows you 
 
 You should have Visual Studio installed. Use this link (<https://code.visualstudio.com/docs/cpp/config-msvc#_prerequisites>) and complete steps 1 to 3 of the prerequisites.
 
+2 weeks after I started seriously working through this book I could  write and debug custom shaders.
+
+If you've ever tried learning this stuff on your own, you know just how insane that is.
+
+Joey is the man!!!
+
+Give him a follow on Twitter/X - <https://x.com/JoeyDeVriez>
+
+Book Link: <https://learnopengl.com/>
+
 Below are some notes I took, feel free to remove them.
 
 ## Table of Contents
@@ -32,6 +42,9 @@ Below are some notes I took, feel free to remove them.
   - [Light casters](#light-casters)
   - [Multiple lights](#multiple-lights)
 - [Model Loading](#model-loading)
+  - [Assimp](#assimp)
+  - [Mesh](#mesh)
+  - [Model](#model)
 - [Advanced OpenGL](#advanced-opengl)
 - [Advanced Lighting](#advanced-lighting)
 - [PBR](#pbr)
@@ -576,6 +589,18 @@ Below are some notes I took, feel free to remove them.
   2. For each light, the light's contribution to the fragment is added to this output color vector. In effect, each light will calculate its individual impact and contribute that to the final output color vector
 
 ### Model Loading
+
+#### *Assimp*
+
+-
+
+-
+
+-
+
+#### *Mesh*
+
+#### *Model*
 
 ### Advanced OpenGL
 
