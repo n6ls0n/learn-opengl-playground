@@ -592,11 +592,33 @@ Below are some notes I took, feel free to remove them.
 
 #### *Assimp*
 
--
+- For simple objects, we can define vertices in order to create the object but for more complicated objects, this would be too cubersome. Instead, 3-D modelling software like Blender & 3DS Max are used to create models of the items we want to use. These are called **models**
 
--
+- While these modelling programs obfuscate the low-level details of the models so that the designers can focus on designing , those details are important to us the programmers.
 
--
+- These models are exported in various file formats which contain details about the model. Two of these formats are **Wavefront.obj** (not as extensive) and **Collada** (very extensive)
+
+- **Assimp** (Open Asset Import Library) is a very popular model importing library. It can import dozens of different model file formats (and export some as well) by loading all the model's data into Assimp's generalized data structures
+
+- Because the data structure of Assimp stays the same regardless of the type of file format imported, it abstracts us from all the different file formats out there.
+
+- When importing a model via Assimp, it load's the entire model into a scene object that contains all the data of the imported model/scene. Assimp then has a collection of nodes where each node contains indices to data stored in the scene object. Each node can have any number of children
+
+- A simplified Assimp model:
+
+    1. All the data of the scene/model is contained in the Scene object including all the materials and meshes. It contains a reference to the root node of the scene
+    2. The root node of the scene may contain children nodes (like all other nodes) and could have a set of indices that point to mesh data in the scene object's mMeshes array. The scene's mMeshes array contains the actual Mesh object, the values in the mMeshes array of a node are only indices for the scene's meshes array
+    3. A mesh object contains all the relevant  data required for rendering, think of vertex positions, normal vectors, texture coordinates, faces and the material of the object
+    4. A mesh contains several faces. A face represents a render primitive of the object(triangles, squares, points etc.). A face contains the indices of the vertices that form a primitive. Because the vertices and the indices are separated, this makes it easy for us to render via an index buffer
+    5. Finally, a mesh also links to a Material object that hosts several functions to retrieve the  material properties of an object. Think of colors and/or texture maps
+
+- The process of loading the model is as follows:
+    1. Load an object into a Scene object
+    2. Recursively retrieve the corresponding Mesh objects from each of the nodes( we recursively search each node's children)
+    3. Process each Mesh object to retrieve the vertex data, indices and material properties
+    4. The result is then a collection of mesh data that we want to contain in a single Model object
+
+- A model usually consists of several meshes
 
 #### *Mesh*
 
