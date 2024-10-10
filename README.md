@@ -46,6 +46,17 @@ Below are some notes I took, feel free to remove them.
   - [Mesh](#mesh)
   - [Model](#model)
 - [Advanced OpenGL](#advanced-opengl)
+  - [Depth Testing](#depth-testing)
+  - [Stencil Testing](#stencil-testing)
+  - [Blending](#blending)
+  - [Face culling](#face-culling)
+  - [Framebuffers](#framebuffers)
+  - [Cubemaps](#cubemaps)
+  - [Advanced Data](#advanced-data)
+  - [Advanced GLSL](#advanced-glsl)
+  - [Geometry Shader](#geometry-shader)
+  - [Instancing](#instancing)
+  - [Anti Aliasing](#anti-aliasing)
 - [Advanced Lighting](#advanced-lighting)
 - [PBR](#pbr)
 - [Helpful Links](#helpful-links)
@@ -633,6 +644,28 @@ Below are some notes I took, feel free to remove them.
 - Helpful video for using our own models created in Blender: <https://www.youtube.com/watch?v=4DQquG_o-Ac>
 
 ### Advanced OpenGL
+
+#### *Depth Testing*
+
+#### *Stencil Testing*
+
+#### *Blending*
+
+#### *Face culling*
+
+#### *Framebuffers*
+
+#### *Cubemaps*
+
+#### *Advanced Data*
+
+#### *Advanced GLSL*
+
+#### *Geometry Shader*
+
+#### *Instancing*
+
+#### *Anti Aliasing*
 
 ### Advanced Lighting
 
