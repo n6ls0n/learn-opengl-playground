@@ -622,8 +622,13 @@ Below are some notes I took, feel free to remove them.
 
 #### *Mesh*
 
+- With Assimp, we can load many different models into the application but once loaded, they are all stored in Assimp's data structures. What we eventually want is to transform that data to a format that OpenGl understands so that we can render the objects.
+
+- Recall that a mesh represents a single drawable entity
+
 #### *Model*
 
+- 
 ### Advanced OpenGL
 
 ### Advanced Lighting
