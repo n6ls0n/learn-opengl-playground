@@ -5,7 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <learnopengl/filesystem.h>
+// #include <learnopengl/filesystem.h>
 #include <learnopengl/shader_m.h>
 #include <learnopengl/camera.h>
 #include <learnopengl/model.h>
@@ -62,70 +62,79 @@ int main()
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // glad: load all OpenGL function pointers
-    // ---------------------------------------
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
 
-    // tell stb_image.h to flip loaded texture's on the y-axis (before loading model).
-    stbi_set_flip_vertically_on_load(true);
+    // Set viewport explicitly
+    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 
     // configure global opengl state
-    // -----------------------------
     glEnable(GL_DEPTH_TEST);
 
     // build and compile shaders
-    // -------------------------
     Shader ourShader("1.model_loading.vs", "1.model_loading.fs");
+    if (!ourShader.ID) {
+        std::cout << "Failed to compile shaders" << std::endl;
+        return -1;
+    }
 
     // load models
-    // -----------
-    Model ourModel(FileSystem::getPath("resources/objects/backpack/backpack.obj"));
+    Model ourModel("backpack.obj");
+    if (ourModel.meshes.empty()) {
+        std::cout << "Failed to load model" << std::endl;
+        return -1;
+    }
 
-    
-    // draw in wireframe
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // Check for OpenGL errors
+    GLenum error = glGetError();
+    if (error != GL_NO_ERROR) {
+        std::cout << "OpenGL error: " << error << std::endl;
+        return -1;
+    }
 
     // render loop
-    // -----------
     while (!glfwWindowShouldClose(window))
     {
         // per-frame time logic
-        // --------------------
-        float currentFrame = static_cast<float>(glfwGetTime());
+        float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        // input
-        // -----
+        // Input handling
         processInput(window);
 
-        // render
-        // ------
-        glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+        // Clear the screen
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // don't forget to enable shader before setting uniforms
+        // Use the shader program
         ourShader.use();
 
-        // view/projection transformations
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        // Set the view and projection matrices
         glm::mat4 view = camera.GetViewMatrix();
-        ourShader.setMat4("projection", projection);
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         ourShader.setMat4("view", view);
+        ourShader.setMat4("projection", projection);
 
-        // render the loaded model
+        // Set the model matrix
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+        model = glm::translate(model, glm::vec3(0.0f, 0.0f, -5.0f));
         ourShader.setMat4("model", model);
+
+        // Draw the model
         ourModel.Draw(ourShader);
 
+        // Check for OpenGL errors
+        error = glGetError();
+        if (error != GL_NO_ERROR) {
+            std::cout << "OpenGL error: " << error << std::endl;
+            return -1;
+        }
 
-        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-        // -------------------------------------------------------------------------------
+        // Swap buffers
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -157,7 +166,7 @@ void processInput(GLFWwindow *window)
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    // make sure the viewport matches the new window dimensions; note that width and 
+    // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
 }
