@@ -628,7 +628,10 @@ Below are some notes I took, feel free to remove them.
 
 #### *Model*
 
-- 
+- Code Implementation section
+
+- Helpful video for using our own models created in Blender: <https://www.youtube.com/watch?v=4DQquG_o-Ac>
+
 ### Advanced OpenGL
 
 ### Advanced Lighting
@@ -654,3 +657,5 @@ Below are some notes I took, feel free to remove them.
 - Shader Toy: <https://www.shadertoy.com/>
 
 - Understanding the Normal Matrix - <http://www.lighthouse3d.com/tutorials/glsl-12-tutorial/the-normal-matrix/>
+
+- How-To Texture Wavefront (.obj) Models for OpenGL - <https://www.youtube.com/watch?v=4DQquG_o-Ac>
