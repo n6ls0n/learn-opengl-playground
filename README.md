@@ -671,6 +671,36 @@ Below are some notes I took, feel free to remove them.
 
 - If depth testing is enabled,The depth buffer should also be cleared before each frame
 
+- There are certain scenarios where you want to perform the depth test on all fragments and discard them accordingly, but not update the depth buffer. Basically, you're temporarily using a read-only depth buffer
+
+- OpenGL allows us to modify the comparison operators it uses for the depth test
+
+- The depth buffer contains depth values between 0.0 and 1.0 and it compares its content with the z-values of all the objects in the scene as seen from the viewer. These z-values in the view space can be any value between the projection-frustum's near and far plane.
+
+- We thus need some way to transform these view-space z-values to the range of [0,1] and one way is to linearly transform them
+
+- The following linear linear equation transforms them: (z - near)/(far - near), where "near" and "far" are the near and far values we provided to the projection matrix
+
+- In practice, linear depth buffers are never used
+
+- Because of the projection properties, a non-linear depth equation is used that is proportional to 1/z. The result is the we get enormous precision when z is small and much less precision when z is far away
+
+- Since the non-linear function is proportional to 1/z, z-values between 1.0 and 2.0 would result in depth values between 1.0 and 0.5 which is half of the [0,1] range, giving us enormous precision at small z-values.
+
+- Z-values between 50.0 and 100.0 would account for only 2% of the [0,1] range.
+
+- The resultant equation: ((1/z) - (1/near))/((1/far) - (1/near))
+
+- Z-fighting is a common visual artifact that may occur when two planes or triangles are so closely aligned ro each other that the depth buffer does not have enough precision to figure out which one of the two shapes is in front of the other
+- The result is that the two shapes continually seem to switch order which causes weird glitchy patterns
+
+- Tricks to prevent z-fighting:
+    1. Never place objects too close to each other in a way that some of their triangles closely overlap. By creating a small offset between two objects you can completely remove z-fighting between the two objects.
+
+    2. Set the near plane as far as possible. Recall that precision increases as the distance between the object and the near plane reduces, thus if we move the near plane farther away we get better precision on farther objects. Car emust be taken not to move it far back lest clipping of near-objects occur
+
+    3. Another trick at the cost of performance is to use a higher precision depth buffer. The standard precision is 24 bits but it can be moved up to 32 bits to gain even more precision when depth testing
+
 #### *Stencil Testing*
 
 #### *Blending*
