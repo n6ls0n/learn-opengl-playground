@@ -647,6 +647,30 @@ Below are some notes I took, feel free to remove them.
 
 #### *Depth Testing*
 
+- Depth Buffers have been used to prevent triangles rendering in the front when they are supposed to be behind other triangles
+
+- THe depth buffer is a buffer that, just like the color buffer (recall the color buffer stores all the fragment colors which become the visual output), stores information per fragment and has the same width and heights as the color buffer. The depth buffer is automatically created by the windowing system and stores its depth values as 16,24 or 32 bit floats. Most systems have a depth buffer with a precision of 24 bits
+
+- When depth testing is enabled, OpenGL tests the depth value of the a fragment against the content of the depth buffer. OpenGL then performs a depth test and is the test passes, the fragment is rendered and the depth buffer is updated with the new depth value. If the depth test fails, the fragment is discarded
+
+- Depth testing is done in screen space after the fragment shader has run( and after the stencil test)
+
+- The screen space coordinates relate directly to the viewport defined by OpenGL's glViewPort function and can be accessed via GLSL's built-in gl_FragCoord variable in the fragment shader.
+
+- The x and y components of the gl_FragCoord variable represent eh fragment's screen-space coordinates(with (0,0) being the bottom-left corner)
+
+- The gl_FragCoord variable also contains a z-component which contains the depth value of the fragment. This z-value is the value that is compared to the depth buffer's content
+
+- Most GPU's support a hardware feature called early depth testing. Earl depth testing allows the depth test to run before the fragment shader runs. Whenever it is clear a fragment isn't going to be visible(it is behind other objects) we can prematurely discard the fragment
+
+- Fragment shaders are usually quite expensive so wherever we can avoid running them we should. A restriction on the fragment shader for early depth testing is that you shouldn't write to the fragment's depth value. If a fragment shader would write to its depth value, early depth testing is impossible; OpenGL won't be able to figure out the depth value beforehand.
+
+- Depth testing is disabled by default
+
+- Once enabled, OpenGL automatically stores fragments z-values in the depth buffer if they passed the depth test and discards fragments if they failed the depth test accordingly
+
+- If depth testing is enabled,The depth buffer should also be cleared before each frame
+
 #### *Stencil Testing*
 
 #### *Blending*
