@@ -703,6 +703,34 @@ Below are some notes I took, feel free to remove them.
 
 #### *Stencil Testing*
 
+- Once the fragment shader has processed the fragment, a stencil test is executed that also has the option to discard fragments
+
+- After that the remaining fragments are passed to the depth test where OpenGL could possibly discard even more fragments.
+
+- The stencil test is based on the stencil buffer that we are allowed to update during rendering to achieve interesting effects
+
+- A stencil buffer contains 8 bits per stencil-value that amounts to a total of 256 different stencil values per pixel. We can set these stencil values to values of our liking and we can discard or keep fragments whenever a particular fragment has a certain stencil value.
+
+- Each windowing library needs to set up a stencil buffer for you. GLFW does this automatically so we don't have to tell it to create one, but other windowing libraries ,ay not create a stencil buffer by default so be sure to check the docs
+
+- Stencil buffer operations allow us to set the stencil buffer at specific values wherever we're rendering fragments. By changing the content of the stencil buffer while we're rendering, we're writing to the stencil buffer.
+
+- In the same (or following) frame(s) we can read these values    to discard or pass certain fragments.
+
+- The general outline for using stencil buffer:
+    1. Enable writing to the stencil buffer
+    2. Render objects, updating the content of the stencil buffer
+    3. Disable writing to the stencil buffer
+    4. Render other objects, this time discarding certain fragments based on the contents of the stencil buffer
+
+- By using the stencil buffer, we can thus discard certain fragments based on the fragments of other drawn objects in the scene
+
+- Object outlining can be implemented with stencil testing alone
+
+- Object outlining is the process by which, for each object in question, we create a small colored border around the objects(s)
+
+- 
+
 #### *Blending*
 
 #### *Face culling*
