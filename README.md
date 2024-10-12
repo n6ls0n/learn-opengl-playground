@@ -717,7 +717,7 @@ Below are some notes I took, feel free to remove them.
 
 - In the same (or following) frame(s) we can read these values    to discard or pass certain fragments.
 
-- The general outline for using stencil buffer:
+- The general outline for using stencil buffers:
     1. Enable writing to the stencil buffer
     2. Render objects, updating the content of the stencil buffer
     3. Disable writing to the stencil buffer
@@ -729,7 +729,19 @@ Below are some notes I took, feel free to remove them.
 
 - Object outlining is the process by which, for each object in question, we create a small colored border around the objects(s)
 
-- 
+- The process is:
+    1. Enable stencil writing
+    2. Set the stencil op to GL_ALWAYS beofr drawing the (to be outlined) objects, updating the stencil buffer with 1s wherever the object's fragments are rendered
+    3. Render the objects
+    4. Disable stencil writing and depth testing
+    5. Scale each of the objects by a small amount
+    6. Use a different fragment shader that outputs a single (border) color
+    7. Draw the objects again, but only if their fragments' stencil values are not equal to 1
+    8. Enable depth testing again and restore the stencil function to GL_KEEP
+
+- This process sets the content of the stencil buffer to 1s for each of the object's fragments and when it's time to draw the borders, we draw scaled-up version of the objects only where the stencil test passes
+
+- We'r effectively discarding all the fragments of the scaled-up version that are part of the original object's using the stencil buffer
 
 #### *Blending*
 
