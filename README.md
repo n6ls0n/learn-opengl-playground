@@ -771,6 +771,16 @@ Below are some notes I took, feel free to remove them.
 
 - This is usually okay but since we're using transparent values, the top of the texture image gets its transparent value interpolated with the bottom border's solid color value. The result is a slightly semi-transparent colored border you may see wrapped around your textured quad. To prevent this,set the texture wrapping method to GL_CLAMP_TO_EDGE alpha textures are used that don;t need to be repeated
 
+- Discarding fragments prevents us from being able to render semi-transparent images; we either render the fragment or completely discard it
+
+- To render images with different levels of transparency wee have to enable blending
+
+- Blending in OpenGL happens with the following equation: C_result = (C_source * F_source) + (C_destination * F_destination) where C and F stand for the color vector and factor scalar
+
+- After the fragment shader has run and all the tests have passed, this blend equation is let loose on the fragment's color output and with whatever is currently in the color buffer
+
+- The source and destination colors will automatically be set by OpenGL but the source and destination factor can be set to a value of our choosing
+
 #### *Face culling*
 
 #### *Framebuffers*
