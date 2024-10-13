@@ -6,7 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <learnopengl/filesystem.h>
+// #include <learnopengl/filesystem.h>
 #include <learnopengl/shader_m.h>
 #include <learnopengl/camera.h>
 #include <learnopengl/model.h>
@@ -167,8 +167,8 @@ int main()
 
     // load textures
     // -------------
-    unsigned int cubeTexture = loadTexture(FileSystem::getPath("resources/textures/marble.jpg").c_str());
-    unsigned int floorTexture = loadTexture(FileSystem::getPath("resources/textures/metal.png").c_str());
+    unsigned int cubeTexture = loadTexture("marble.jpg");
+    unsigned int floorTexture = loadTexture("metal.png");
 
     // shader configuration
     // --------------------
@@ -232,7 +232,7 @@ int main()
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
         // 2nd. render pass: now draw slightly scaled versions of the objects, this time disabling stencil writing.
-        // Because the stencil buffer is now filled with several 1s. The parts of the buffer that are 1 are not drawn, thus only drawing 
+        // Because the stencil buffer is now filled with several 1s. The parts of the buffer that are 1 are not drawn, thus only drawing
         // the objects' size differences, making it look like borders.
         // -----------------------------------------------------------------------------------------------------------------------------
         glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
@@ -296,7 +296,7 @@ void processInput(GLFWwindow *window)
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    // make sure the viewport matches the new window dimensions; note that width and 
+    // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
 }
