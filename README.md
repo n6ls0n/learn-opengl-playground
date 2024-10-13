@@ -745,6 +745,32 @@ Below are some notes I took, feel free to remove them.
 
 #### *Blending*
 
+- Blending in OpenGl is commonly known as the technique to implement transparency within objects
+
+- Transparency is all about objects (or parts of them) not having a solid color but having a combination fo colors from the object itself and any other object behind it with varying intensity
+
+- For example, a colored glass window is a transparent object; the glass has a color of its own,, but the resulting color contains the colors of all the objects behind the glass as well.
+
+- This is where the name blending comes from, since we blend several pixel colors (from different objects) to a single color. Transparency thus allows us to see through the objects
+
+- Transparent objects can be completely or partially transparent
+
+- The amount of transparency of an object is defined by its color's alpha value.
+
+- The alpha color value is the 4th component of the color vector
+
+- An alpha value of 1.0 means an object is completely opaque while an alpha value of 0.0 means an object is completely transparent
+
+- Some textures have an embedded alpha channel that contains an alpha value per texel. This alpha value tells us exactly which parts of the texture have transparency and by how much.
+
+- Some effects do not care about partial transparency but either want to show something or nothing at all based on the color value of the texture
+
+- This process is known as discarding whereby a comparison can be done to make sure that only fragments above a certain alpha value will be render and everything else will be discarded
+
+- When sampling textures at their borders, OpenGl interpolates the border values with the next repeated value of the texture (because we set its wrapping parameters to GL_REPEAT by default)
+
+- This is usually okay but since we're using transparent values, the top of the texture image gets its transparent value interpolated with the bottom border's solid color value. The result is a slightly semi-transparent colored border you may see wrapped around your textured quad. To prevent this,set the texture wrapping method to GL_CLAMP_TO_EDGE alpha textures are used that don;t need to be repeated
+
 #### *Face culling*
 
 #### *Framebuffers*
