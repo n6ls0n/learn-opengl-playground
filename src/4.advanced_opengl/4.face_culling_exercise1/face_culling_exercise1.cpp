@@ -82,7 +82,7 @@ int main()
 
     glEnable(GL_CULL_FACE);
 
-    // Pay around with these to get different effects. Using each pair gives the expected result, the fun is when you mix and match
+    // Play around with these to get different effects. Using each pair gives the expected result, the fun is when you mix and match
     glCullFace(GL_FRONT);
     // glFrontFace(GL_CCW);
 
