@@ -803,6 +803,20 @@ Below are some notes I took, feel free to remove them.
 
 #### *Face culling*
 
+- You can view a cube from any position and/or direction but you would never be able see more than 3 faces. It may be beneficial to not draw the 3 other faces of the cube if we can't see them.
+
+- If we could discard the other 3 faces in some way, we would save more than 50% of this cube's total fragment shader runs. It could be >50% because from certain angles only 1 or 2 faces could be visible
+
+- The problem becomes how do we know if a face of an object is visible from the viewer's point of view i.e. show the user only the side's that they can see
+
+- The process of solving this issue in OpenGL is called face culling and it does this by doing a check for all the faces that are front facing towards the viewer and renders those while discarding all the faces that are back facing, thus saving fragment shader calls
+
+- OpenGL has to be told which of the faces we use are actually the front faces and which faces are the back faces. It uses a clever trick for this by analyzing the winding order of the vertex data
+
+- When we define a set of triangle vertices we're defining them in a certain winding order that is either clockwise or counter-clockwise. Each triangle consists of the 3 vertices and we specify those 3 vertices in a winding order
+
+- Each set of 3 vertices that form a triangle primitive thus contain a winding order. OpenGL uses this information when rendering primitives to determine if a triangle is a front-facing or a back-facing triangle. By default, triangles defined with counter-clockwise vertices are processed as front-facing triangles
+
 #### *Framebuffers*
 
 #### *Cubemaps*
