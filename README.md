@@ -781,6 +781,26 @@ Below are some notes I took, feel free to remove them.
 
 - The source and destination colors will automatically be set by OpenGL but the source and destination factor can be set to a value of our choosing
 
+- When rendering multiple semi-transparent objects, the transparent parts of the objects in front may occlude the objects in the back
+
+- The reason for this is that depth testing works a bit tricky when combined with blending. When writing to the depth buffer, the depth test does not care if the fragment has transparency or not, so the transparent parts are written to the depth buffer as any other value
+
+- The result is that the background windows are tested on depth as any other opaque object would be, ignoring transparency. Even though the transparent parts should show the windows behind it, the depth test discards them
+
+- The result is that we simply can't render the windows however we want and expect the depth buffer to solve all our issues for us
+
+- To make sure the objects in the back of the scene show, we have to draw them first. This means we have to manually sort the windows from furthest to nearest and draw them accordingly ourselves
+
+- Recall that with fully transparent objects, we have the option to discard the transparent fragments instead of blending them, saving us a few of these headaches
+
+- To make blending work, as stated above, we have to draw the most distant objects first and the closest object last. The normal non-blended objects can still be drawn as normal using the depth buffer so they don't have to be sorted. We do have to make sure they are drawn first before drawing the sorted transparent objects.
+
+- The general idea when you have both opaque and semi-transparent objects is to the draw the opaque objects first, sort the transparent objects and then the draw all the transparent objects in the sorted order
+
+- One way of sorting the transparent objects is to retrieve the distance of an object from the viewer's perspective. The can be achieved by taking the distance between the camera's position vector and the object's position vector. We the store this distance together with the corresponding position vector in a map data structure from the STL library. A map automatically sorts its values based in its keys so once we've added all positions with their distance as the key, they're automatically sorted on their distance value.
+
+- This sorting technique doesn't take into account rotations, scaling or any other transformations and also weirdly shaped objects need a different metric than simply a position vector
+
 #### *Face culling*
 
 #### *Framebuffers*
