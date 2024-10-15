@@ -1,8 +1,4 @@
-/* Also make sure to add a call to OpenGL to specify that triangles defined by a clockwise ordering
-   are now 'front-facing' triangles so the cube is rendered as normal:
-   glFrontFace(GL_CW);
-*/
-
+//  Question: Can you re-define the vertex data by specifying each triangle in clockwise order and then render the scene with clockwise triangles set as the front faces
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
