@@ -886,6 +886,8 @@ Below are some notes I took, feel free to remove them.
 
 - The last change is the depth function whereby it should now be GL_LEQUAL (less than or equal) vs GL_LESS (less than). This is because the depth box will be filled with values of 1.0 so we need to make sure the depth test passes with values less than or equal to the depth buffer instead of just less than
 
+- Using a cubemap with an environment, we could give objects reflective or refractive properties. Techniques that use an environment cubemap like this are called environment mapping techniques with reflection and refraction being the most popular operations
+
 #### *Advanced Data*
 
 #### *Advanced GLSL*
