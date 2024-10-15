@@ -860,6 +860,16 @@ Below are some notes I took, feel free to remove them.
 
 #### *Cubemaps*
 
+- A cubemap is a combination of multiple textures mapped into one
+
+- A cubemap is a texture that contains 6 individual 2D textures that each form one side of a cube
+
+- The benefit of using cubemaps is that they can be indexed/sampled using a direction vector residing at its center. The magnitude of the direction vector does not matter. As long as a direction is supplied, OpenGL retrieves the corresponding texels that the direction hits (eventually) and returns the properly sampled texture value
+
+- If we imagine we have a cube shape that we attach such a cubemap to, this directions vector would be similar to the interpolated local vertex position of the cube. THis way we can sample the cubemap using the cube's actual position vectors as long as the cube is centered on the origin. We thus consider all vertex positions of the cube to be its texture coordinates when sampling a cubemap. The result is a texture coordinate that accesses the proper individual face texture of the cubemap
+
+- A skybox is one interesting technique that is easy to implement with a cubemap. It is a large cube that encompasses the entire screen and contains 6 images of a surrounding environment, giving the player the illusion that the environment he's in is actually much larger that it actually is
+
 #### *Advanced Data*
 
 #### *Advanced GLSL*
