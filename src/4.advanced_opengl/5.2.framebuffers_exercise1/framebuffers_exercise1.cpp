@@ -1,3 +1,5 @@
+//  Question: Can you use framebuffers to create a rear-view mirror? For this you'll have to draw your scene twice: one with the camera rotated 180 degrees and the other as normal. Try to create a small quad at the top of your screen to apply the mirror texture on.
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stb_image.h>
@@ -6,7 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <learnopengl/filesystem.h>
+// #include <learnopengl/filesystem.h>
 #include <learnopengl/shader_m.h>
 #include <learnopengl/camera.h>
 #include <learnopengl/model.h>
@@ -127,7 +129,7 @@ int main()
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
     float planeVertices[] = {
-        // positions          // texture Coords 
+        // positions          // texture Coords
          5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
         -5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
         -5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
@@ -182,8 +184,8 @@ int main()
 
     // load textures
     // -------------
-    unsigned int cubeTexture = loadTexture(FileSystem::getPath("resources/textures/container.jpg").c_str());
-    unsigned int floorTexture = loadTexture(FileSystem::getPath("resources/textures/metal.png").c_str());
+    unsigned int cubeTexture = loadTexture("container.jpg");
+    unsigned int floorTexture = loadTexture("metal.png");
 
     // shader configuration
     // --------------------
@@ -236,9 +238,9 @@ int main()
 
 
         // first render pass: mirror texture.
-        // bind to framebuffer and draw to color texture as we normally 
+        // bind to framebuffer and draw to color texture as we normally
         // would, but with the view camera reversed.
-        // bind to framebuffer and draw scene as we normally would to color texture 
+        // bind to framebuffer and draw scene as we normally would to color texture
         // ------------------------------------------------------------------------
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
         glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
@@ -253,7 +255,7 @@ int main()
         camera.ProcessMouseMovement(0, 0, false); // call this to make sure it updates its camera vectors, note that we disable pitch constrains for this specific case (otherwise we can't reverse camera's pitch values)
         glm::mat4 view = camera.GetViewMatrix();
         camera.Yaw   -= 180.0f; // reset it back to its original orientation
-        camera.ProcessMouseMovement(0, 0, true); 
+        camera.ProcessMouseMovement(0, 0, true);
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         shader.setMat4("view", view);
         shader.setMat4("projection", projection);
@@ -356,7 +358,7 @@ void processInput(GLFWwindow *window)
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    // make sure the viewport matches the new window dimensions; note that width and 
+    // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
 }
