@@ -819,6 +819,33 @@ Below are some notes I took, feel free to remove them.
 
 #### *Framebuffers*
 
+- All the buffers we've used so far are stored in the GPU Memory as framebuffers
+
+- OpenGL gives us the flexibility to define our own framebuffer and thus define our own color, depth and stencil buffer
+
+- The rendering operations completed in previous example were done on top of the render buffers attached to the default framebuffer.
+
+- The default framebuffer is created and configured when you create your window. By creating another framebuffer, we get an additional target to render to
+
+- Rendering the scene to a different framebuffer allows us to use that result to create mirrors in a scene or achieve cool post-processing effects\
+
+- A framebuffer is not complete until the following conditions are satisfied:
+    1. We have to attach at least one buffer
+    2. There should be at least one color attachment
+    3. All attachments should be complete i.e. have reserved memory
+    4. Each buffer should have the same number of samples
+
+- Textures can be attached to framebuffers
+
+- It is possible to render a scene into a color texture attached to a framebuffer object we created and then draw this texture over a simple quad that spans the whole screen
+
+- If a depth of stencil buffer are omitted, then the corresponding testing for each buffer will not be completed
+
+- The process to draw a scene to a single texture is as follows:
+    1. Render the scene as usual with the new framebuffer bound as the active framebuffer
+    2. Bind to the default framebuffer
+    3. Draw quad that spans the entire screen with the new framebuffer's color buffer as its texture
+
 #### *Cubemaps*
 
 #### *Advanced Data*
