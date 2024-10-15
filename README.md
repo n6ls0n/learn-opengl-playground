@@ -870,6 +870,22 @@ Below are some notes I took, feel free to remove them.
 
 - A skybox is one interesting technique that is easy to implement with a cubemap. It is a large cube that encompasses the entire screen and contains 6 images of a surrounding environment, giving the player the illusion that the environment he's in is actually much larger that it actually is
 
+- An optimization that could be performed during the code implementation of a skybox render is to render that skybox last
+
+- If we render the skybox first we're running the fragment shader for each pixel on the screen even though a small part of the skybox will eventually be visible; fragments that could have easily been discarded using early depth testing which the saves valuable computing bandwidth
+
+- To give a slight performance boost, the skybox should be rendered last. This way, the depth buffer is completely filles with all the scene's depth values so we only have to render the skybox's fragments wherever the early depth test passes which vastly reduces the number of fragment shader calls
+
+- The problem then becomes that the skybox would then render on top of all other objects since its only a 1X1X1 cube which would allow it to pass most depth tests.
+
+- Simply rendering it without depth testing is not a solution since the skybox will then still overwrite all the other objects in the scene as its rendered last. There needs to be a way to trick the depth buffer into believing that the skybox has the maximum depth value of 1.0 so that it fails the depth test wherever there's a different object in front of it
+
+- Recall that perspective division is performed after the vertex shader has run, dividing the gl_Position's xyz coordinates by its w component. The z component of the resulting division is equal to the vertex's depth value
+
+- The trick then becomes the set the z component of the output position equal to its w component which will result in a z component that is always equal to 1.0 because of the perspective division stated above
+
+- The last change is the depth function whereby it should now be GL_LEQUAL (less than or equal) vs GL_LESS (less than). This is because the depth box will be filled with values of 1.0 so we need to make sure the depth test passes with values less than or equal to the depth buffer instead of just less than
+
 #### *Advanced Data*
 
 #### *Advanced GLSL*
