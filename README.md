@@ -846,7 +846,17 @@ Below are some notes I took, feel free to remove them.
     2. Bind to the default framebuffer
     3. Draw quad that spans the entire screen with the new framebuffer's color buffer as its texture
 
--
+- Another advantage of the doing post-processing on a single texture image is that we can sample color values from other parts of the texture not specific to that fragment
+
+- It is possible to take a small area around the current texture coordinate and sample multiple texture values around the current texture value. We can then create interesting effects by combining them in creative ways
+
+- A kernel or convolution matrix is small matrix-like array of values centered on the current pixel that multiplies surrounding pixel values by its jkernel values and adss them all together to form a single value
+
+- In effect, we ae adding a small offset to the texture coordinates in surrounding directions of the current pixel and then combine the results based on the kernel
+
+- The individual values within the pixels are called weights and most weights in kernels all add up to one meaning that the resulting texture color ends up brighter or darker than the original texture value.
+
+- Most kernels are either 3x3 or 5x5
 
 #### *Cubemaps*
 
