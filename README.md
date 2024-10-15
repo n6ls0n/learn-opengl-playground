@@ -839,12 +839,14 @@ Below are some notes I took, feel free to remove them.
 
 - It is possible to render a scene into a color texture attached to a framebuffer object we created and then draw this texture over a simple quad that spans the whole screen
 
-- If a depth of stencil buffer are omitted, then the corresponding testing for each buffer will not be completed
+- If a depth or stencil buffer are omitted, then the corresponding testing for the buffer will not be completed
 
 - The process to draw a scene to a single texture is as follows:
     1. Render the scene as usual with the new framebuffer bound as the active framebuffer
     2. Bind to the default framebuffer
     3. Draw quad that spans the entire screen with the new framebuffer's color buffer as its texture
+
+-
 
 #### *Cubemaps*
 
@@ -883,3 +885,5 @@ Below are some notes I took, feel free to remove them.
 - Understanding the Normal Matrix - <http://www.lighthouse3d.com/tutorials/glsl-12-tutorial/the-normal-matrix/>
 
 - How-To Texture Wavefront (.obj) Models for OpenGL - <https://www.youtube.com/watch?v=4DQquG_o-Ac>
+
+- Shirt Article on Image Kernels - <https://setosa.io/ev/image-kernels/>
