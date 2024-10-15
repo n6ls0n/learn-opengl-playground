@@ -6,6 +6,10 @@ in vec2 TexCoords;
 uniform sampler2D texture1;
 
 void main()
-{    
-    FragColor = texture(texture1, TexCoords);
+{
+    // FragColor = texture(texture1, TexCoords);
+
+    // Inversion effect
+    // ---------------------------------------------------------------
+    FragColor = vec4(vec3(1.0 - texture(texture1, TexCoords)), 1.0);
 }
