@@ -902,6 +902,24 @@ Below are some notes I took, feel free to remove them.
 
 - Using glMapBuffer is useful for directly mapping data to a buffer without first storing it in temporary memory. Think of directly reading data from file and copying it into the buffer;s memory
 
+- Using glVertexAttribPointer we were able to specify the attribute layout of the vertex array buffer's content. Within the vertex array buffer we interleaved the attributes, we placed the position, normal and/or texture coordinates next to each other in memory for each vertex
+
+- Another approach would be to batch all the vector data into large chunks per attribute type instead of interleaving them. Instead of an interleaved 123123123123 we take a batched approach of 111122223333
+
+- When loading vertex data from file, you generally retrieve an array of positions, an array of normals and/or an array of texture coordinates. It may cost some effort to combine these arrays into one large array of interleaved data. Taking the batching approachis then an easier solution that can be easily implemented in glBufferSubData
+
+- This is yet another approach of setting and specifying vertexa attributes. Using either approach is feasible, it is mostly a more organized way to set vertex attributes. However, the interleaved approach is still the recommended apporach as the vertex attributes for each vertex shader run are the closely aligned in memory
+
+- Once you have filled your buffers with data, you may want ot share that data with other buffer or perhaps copy the buffer's contents into another buffer.
+
+- The function glCopyBufferSubData allows us to copy data from one buffer to another buffer with realtive ease
+
+- The function prototype: void glCopyBufferSubData(GLenum readtarget, GLenum writetarget, GLintptr readoffset, GLintptr writeoffset, GLsizeiptr size);
+
+- The readtarget and writetarget parameters expect to give the buffer targets that we want to copy from and to. We could for example vopy from a VERTEX_ARRAY_BUFFER to a VERTEX_ARRAY_ELEMENT_BUFFER buffer by specifying those buffer targets as the read and write targets respectively. The buffers currently bound to those targets would then be affected
+
+- But what if we wanted to read and write data into two different buffers that are both vertex array buffers? We can't bind two buffers at the same time to the same buffer target. For this reason, and this reason alone, OpenGL gives us two more buffer targets called GL_COPY_READ_BUFFER and GL_COPY_WRITE_BUFFER. We then bind the buffers of our choice to these new buffer targets and set those targets as the readtarget and writetarget argument
+
 #### *Advanced GLSL*
 
 #### *Geometry Shader*
