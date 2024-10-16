@@ -890,6 +890,18 @@ Below are some notes I took, feel free to remove them.
 
 #### *Advanced Data*
 
+- A buffer in OpenGL is, at its core, an object that manages a certain piece of GPU memory and nothing more. We give meaning to a buffer by binding it to a specific buffer target. A buffer is only a vertex array buffer when we bind it to GL_ARRAY_BUFFER but we could just as easily bind it to GL_ELEMENT_ARRAY_BUFFER. OpenGL internally stores a reference to the buffer per target and based on the target, processes the buffer differently
+
+- So far we've been filling the buffers memory by calling glBufferData, which allocates a piece of the GPU memory and adds data to into this memory. If we were to pass NULL as its data argument, the function would only allocate memory and not fill it. This is useful if we want to reserve a specific amount of memory and later com back to this buffer
+
+- Instead of filling the entire buffer with one function call we can also fill specific regions of the buffer by calling glBufferSubData. This function expects a buffer target, an offset, the size of the data and the actual data as its arguments. What's new with this function is that we can now give an offset that specifies from where we want to fill the buffer. This allows us to insert/update only certain parts of the buffers memory. Do note that the buffer should have enough allocated memory so a call to glBufferData is necessary before calling glBufferSubData
+
+- Another method for getting data into a buffer is to ask for a pointer to the buffer's memory and directly copy the data in memory yourself. By calling glMapBuffer, OpenGL returns a pointer to the currently bound buffer's memory for us to operate on.
+
+- We tell OpenGL we are finished with the pointer operations via glUnmapBuffer, by unmapping, the pointer becomes invalid and function returns GL_TRUE is OpenGL was able to map your data successfully to the buffer
+
+- Using glMapBuffer is useful for directly mapping data to a buffer without first storing it in temporary memory. Think of directly reading data from file and copying it into the buffer;s memory
+
 #### *Advanced GLSL*
 
 #### *Geometry Shader*
