@@ -731,7 +731,7 @@ Below are some notes I took, feel free to remove them.
 
 - The process is:
     1. Enable stencil writing
-    2. Set the stencil op to GL_ALWAYS beofr drawing the (to be outlined) objects, updating the stencil buffer with 1s wherever the object's fragments are rendered
+    2. Set the stencil op to GL_ALWAYS before drawing the (to be outlined) objects, updating the stencil buffer with 1s wherever the object's fragments are rendered
     3. Render the objects
     4. Disable stencil writing and depth testing
     5. Scale each of the objects by a small amount
@@ -850,7 +850,7 @@ Below are some notes I took, feel free to remove them.
 
 - It is possible to take a small area around the current texture coordinate and sample multiple texture values around the current texture value. We can then create interesting effects by combining them in creative ways
 
-- A kernel or convolution matrix is small matrix-like array of values centered on the current pixel that multiplies surrounding pixel values by its jkernel values and adss them all together to form a single value
+- A kernel or convolution matrix is small matrix-like array of values centered on the current pixel that multiplies surrounding pixel values by its kernel values and adds them all together to form a single value
 
 - In effect, we ae adding a small offset to the texture coordinates in surrounding directions of the current pixel and then combine the results based on the kernel
 
@@ -906,13 +906,13 @@ Below are some notes I took, feel free to remove them.
 
 - Another approach would be to batch all the vector data into large chunks per attribute type instead of interleaving them. Instead of an interleaved 123123123123 we take a batched approach of 111122223333
 
-- When loading vertex data from file, you generally retrieve an array of positions, an array of normals and/or an array of texture coordinates. It may cost some effort to combine these arrays into one large array of interleaved data. Taking the batching approachis then an easier solution that can be easily implemented in glBufferSubData
+- When loading vertex data from file, you generally retrieve an array of positions, an array of normals and/or an array of texture coordinates. It may cost some effort to combine these arrays into one large array of interleaved data. Taking the batching approach is then an easier solution that can be easily implemented in glBufferSubData
 
-- This is yet another approach of setting and specifying vertexa attributes. Using either approach is feasible, it is mostly a more organized way to set vertex attributes. However, the interleaved approach is still the recommended apporach as the vertex attributes for each vertex shader run are the closely aligned in memory
+- This is yet another approach of setting and specifying vertex attributes. Using either approach is feasible, it is mostly a more organized way to set vertex attributes. However, the interleaved approach is still the recommended approach as the vertex attributes for each vertex shader run are the closely aligned in memory
 
 - Once you have filled your buffers with data, you may want ot share that data with other buffer or perhaps copy the buffer's contents into another buffer.
 
-- The function glCopyBufferSubData allows us to copy data from one buffer to another buffer with realtive ease
+- The function glCopyBufferSubData allows us to copy data from one buffer to another buffer with relative ease
 
 - The function prototype: void glCopyBufferSubData(GLenum readtarget, GLenum writetarget, GLintptr readoffset, GLintptr writeoffset, GLsizeiptr size);
 
@@ -921,6 +921,30 @@ Below are some notes I took, feel free to remove them.
 - But what if we wanted to read and write data into two different buffers that are both vertex array buffers? We can't bind two buffers at the same time to the same buffer target. For this reason, and this reason alone, OpenGL gives us two more buffer targets called GL_COPY_READ_BUFFER and GL_COPY_WRITE_BUFFER. We then bind the buffers of our choice to these new buffer targets and set those targets as the readtarget and writetarget argument
 
 #### *Advanced GLSL*
+
+- Shaders are extremely pipelined, if we need data from any other source outside of the current shader we'll have to pass data around. We learned to do this via vertex attributes, uniforms and samplers
+
+- There are a few extra varibles defined by GLSL prefixed wiht the "gl_" that gives us an extra means to gather and/or write data. Two examples that have been used are gl_Position which is the output vector of the vertex shader and the fragment shader's gl_FragCoord
+
+- Recall that gl_Position is the clip-space output position vector of the vertex shader. Setting gl_Position in the vertex shader is a strict requirement if you want to render anything to the screen
+
+- One of the render primitives that we are able to choose from is the GL_POINTS in which case each single vertex is primitive and rendered as a point. It is possible to set the size of the points being rendered via OpenGL's glPointSize function but we can also influence this value in the vertex shader
+
+- One output variable defined by GLSL is called gl_PointSize that is a float variable where you can set the point's width and height in pixels. By setting the point's size in the vertex shader we get per-vertex control over this point's dimensions
+
+- Influencing the point size in the vertex shader is disabled by default but if you want to enable this you'll have to enable OpenGL's GL_PROGRAM_POINT_SIZE
+
+- Varying the point size per vertex is interesting for techniques like particle generation
+
+- Te gl_Position and gl_PointSize are output variables since their value is read as output from the vertex shader; we can influence the result by writing to them. The vertex shader also gives us an interesting input variable that we can only read from called gl_VertexID
+
+- The integer variable gl_VertexID holds the current ID of the vertex we're drawing. When doing indexed redering (with glDrawElements) this variable holds the current index of the vertex we're drawing. When drawing without indices (via glDrawArrays) this variable holds the number of currently processed vertex since the start of the render call
+
+- Recall from depth testing gl_FragCoord that the z component of the gl_FragCoord vector is equal to the depth value of that particular fragment. However, the x and y components can also be used for interesting effects
+
+- The gl_FragCoord's x and y component are the window  or screen space coordinates of the fragment, originating from the bottom-left of the window. Assuming a render window of 800x600 with glViewport, the screen space coordinates of the fragment will x values between 0 and 800 and y values between 0 and 600
+
+- using the fragment shader, we could calculate a different color value based on the screen coordinates of the fragment. A common usage for the gl_FragCoord variable is comparing visual output of different fragment calculations as ususally seen in tech demos. We could for example split the screen in two by rendering one output to the left side of the window and another output to the right side of the window
 
 #### *Geometry Shader*
 
@@ -955,3 +979,7 @@ Below are some notes I took, feel free to remove them.
 - How-To Texture Wavefront (.obj) Models for OpenGL - <https://www.youtube.com/watch?v=4DQquG_o-Ac>
 
 - Shirt Article on Image Kernels - <https://setosa.io/ev/image-kernels/>
+
+GLSL Built-in Variables - <https://www.khronos.org/opengl/wiki/Built-in_Variable_(GLSL)>
+
+OpenGL Wiki - <https://www.khronos.org/opengl/wiki/Main_Page>
