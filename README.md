@@ -994,7 +994,25 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - The aligned byte offset of a variable must be equal to a multiple of its base alignment
 
-- 
+- With the calculated offset values and the rules of the std140 layout, we can fill the buffer with data at the appropriate offsets suing functions like glBufferSubData
+
+- While not the most efficient, the std140 layout does gaurantee us that the memory layout remains the same over each program that declared this uniform block
+
+- To uniform buffer, we first need to create a uniform buffer object which is done via glGenBuffers. Once we have a buffer object we bind it to the GL_UNIFROM_BUFFER target and allocate enough memory by calling glBUfferData
+
+- Whenever we want to update or insert data into the buffer, we bind to the uboExampleBlock and use glBufferSubData to update it's memory
+
+- We only have to update this unifrom buffer once and all shaders that use this buffer now use its updated data
+
+- The question becomes how does OpenGL know what uniform buffers correspond to which uniform blocks?
+
+- In OpenGL context there are a number of binding points defined where we can link a unifrom buffer to. Once we have created a unifrom buffer, we link it to one of those binding points and we also like the uniform block in the shader to the same binding point effectively linkng them together
+
+- We cna bind multiple uniform buffers to different binding points. Because shader A and shader B both have a uniform block linked to the same binding point 0, their uniform blocks share the same uniform data found in uboMatrices; a requirement being that both shaders defined the same Matrices uniform block
+
+- To set a shader uniform block to a specific binding point we call glUniformBlockBinding that takes a program object, a uniform block index and the binding point to link to
+
+- The uniform block index is a location index of the defined uniform block in the shader. THis cna retrieved via a call to glGetUniformBlockIndex that accepts a program object and the name of the uniform block
 
 #### *Geometry Shader*
 
