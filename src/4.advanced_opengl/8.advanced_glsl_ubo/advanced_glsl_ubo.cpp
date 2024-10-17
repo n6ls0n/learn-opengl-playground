@@ -6,7 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <learnopengl/filesystem.h>
+// #include <learnopengl/filesystem.h>
 #include <learnopengl/shader_m.h>
 #include <learnopengl/camera.h>
 #include <learnopengl/model.h>
@@ -78,52 +78,52 @@ int main()
     Shader shaderGreen("8.advanced_glsl.vs", "8.green.fs");
     Shader shaderBlue("8.advanced_glsl.vs", "8.blue.fs");
     Shader shaderYellow("8.advanced_glsl.vs", "8.yellow.fs");
-    
+
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
     float cubeVertices[] = {
-        // positions         
-        -0.5f, -0.5f, -0.5f, 
-         0.5f, -0.5f, -0.5f,  
-         0.5f,  0.5f, -0.5f,  
-         0.5f,  0.5f, -0.5f,  
-        -0.5f,  0.5f, -0.5f, 
-        -0.5f, -0.5f, -0.5f, 
+        // positions
+        -0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+         0.5f,  0.5f, -0.5f,
+         0.5f,  0.5f, -0.5f,
+        -0.5f,  0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
 
-        -0.5f, -0.5f,  0.5f, 
-         0.5f, -0.5f,  0.5f,  
-         0.5f,  0.5f,  0.5f,  
-         0.5f,  0.5f,  0.5f,  
-        -0.5f,  0.5f,  0.5f, 
-        -0.5f, -0.5f,  0.5f, 
+        -0.5f, -0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f,
 
-        -0.5f,  0.5f,  0.5f, 
-        -0.5f,  0.5f, -0.5f, 
-        -0.5f, -0.5f, -0.5f, 
-        -0.5f, -0.5f, -0.5f, 
-        -0.5f, -0.5f,  0.5f, 
-        -0.5f,  0.5f,  0.5f, 
+        -0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f, -0.5f,
+        -0.5f, -0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
 
-         0.5f,  0.5f,  0.5f,  
-         0.5f,  0.5f, -0.5f,  
-         0.5f, -0.5f, -0.5f,  
-         0.5f, -0.5f, -0.5f,  
-         0.5f, -0.5f,  0.5f,  
-         0.5f,  0.5f,  0.5f,  
+         0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
 
-        -0.5f, -0.5f, -0.5f, 
-         0.5f, -0.5f, -0.5f,  
-         0.5f, -0.5f,  0.5f,  
-         0.5f, -0.5f,  0.5f,  
-        -0.5f, -0.5f,  0.5f, 
-        -0.5f, -0.5f, -0.5f, 
+        -0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f, -0.5f,
+         0.5f, -0.5f,  0.5f,
+         0.5f, -0.5f,  0.5f,
+        -0.5f, -0.5f,  0.5f,
+        -0.5f, -0.5f, -0.5f,
 
-        -0.5f,  0.5f, -0.5f, 
-         0.5f,  0.5f, -0.5f,  
-         0.5f,  0.5f,  0.5f,  
-         0.5f,  0.5f,  0.5f,  
-        -0.5f,  0.5f,  0.5f, 
-        -0.5f,  0.5f, -0.5f, 
+        -0.5f,  0.5f, -0.5f,
+         0.5f,  0.5f, -0.5f,
+         0.5f,  0.5f,  0.5f,
+         0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f, -0.5f,
     };
     // cube VAO
     unsigned int cubeVAO, cubeVBO;
@@ -161,7 +161,7 @@ int main()
     glBindBuffer(GL_UNIFORM_BUFFER, uboMatrices);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), glm::value_ptr(projection));
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-  
+
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -187,7 +187,7 @@ int main()
         glBufferSubData(GL_UNIFORM_BUFFER, sizeof(glm::mat4), sizeof(glm::mat4), glm::value_ptr(view));
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-        // draw 4 cubes 
+        // draw 4 cubes
         // RED
         glBindVertexArray(cubeVAO);
         shaderRed.use();
@@ -250,7 +250,7 @@ void processInput(GLFWwindow *window)
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    // make sure the viewport matches the new window dimensions; note that width and 
+    // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
 }
