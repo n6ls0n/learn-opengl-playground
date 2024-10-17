@@ -944,7 +944,57 @@ Below are some notes I took, feel free to remove them.
 
 - The gl_FragCoord's x and y component are the window  or screen space coordinates of the fragment, originating from the bottom-left of the window. Assuming a render window of 800x600 with glViewport, the screen space coordinates of the fragment will x values between 0 and 800 and y values between 0 and 600
 
-- using the fragment shader, we could calculate a different color value based on the screen coordinates of the fragment. A common usage for the gl_FragCoord variable is comparing visual output of different fragment calculations as ususally seen in tech demos. We could for example split the screen in two by rendering one output to the left side of the window and another output to the right side of the window
+- Using the fragment shader, we could calculate a different color value based on the screen coordinates of the fragment. A common usage for the gl_FragCoord variable is comparing visual output of different fragment calculations as ususally seen in tech demos. We could for example split the screen in two by rendering one output to the left side of the window and another output to the right side of the window
+
+- Recall from the face culling chapter that OpenGL is able to figure out if a face is front or back facing due to the winding order of the vertices. The gl_FrontFacing variable tells us if the current fragment is part of a front-facing or a back-facing face. We could for example decide to output different colors for all back faces
+
+- The gl_FrontFacing variable is a bool that is true if the fragment is part of a front face and false otherwise. For example we could create a cube that has different texture on the inside than on the
+
+- The input variable gl_FragCoord is an input variable that allows us to read screen-space coordinates and get the depth value of the current fragment but it is a read-only variable. We can't influence the screen-space coordinates of the fragment but it is possible to set the depth value of the fragment. GLSL gives us an output variable called gl_FragDepth that we can use to manually set the depth value of the fragment within the shader
+
+- Setting the depth value manually has a major disadvantage however. That is because OpenGL disables early depth testing as son  as we write to gl_FragDepth in the fragment shader.
+
+- It is disabled because OpenGL cannot know what depth value the fragment will have before we run the fragment shader since the fragment shader may actually change this value
+
+- By writing to gl_FragDepth this performance should be taken into consideration.
+
+- From OpenGL 4.2 however, we can still sort of mediate between both sides by redeclaring the gl_FragDepth variable at the top of the fragment shader with a depth condition.
+
+- The four conditions are any (defualt value. early depth testing is disabled), greater(you can only make the depth value larger compared to gl_FragCoord.z), less (you can only make the depth value smaller compared to gl_FragCoord.z) and unchanged (if you write to gl_FragDepth, you will write exactly gl_FragCoord.z)
+
+- By specifying greater or less as the depth condition, OpenGL can make the assumption that you'll only write depth values larger or smaller than the fragment's depth value.
+
+- This way OpenGL is still able to do early depth testing when the depth buffer value is part of the other direction of the gl_FragCoord.z
+
+- The standard way to send data from the vertex to the fragmentr shader is to declare several matching input/output variables. Declaring these one at a time is the easiest way to send data from one shader to another but as applications become larger you probably want to send more than a few variables over
+
+- This can be done with interface blocks that allows us to group variables together. The declaration of such an interafce block looks a lot like a struct declaration execept that it is now declared using an in or out keyword based on the block being an input or an output block
+
+- These interface blocks helps organize your shader's inputs/outputs. It is also useful when we want to group shader input/output into arrays
+
+- Assuming an output interface block has been declared in the vertex shader, we also need to declare an input interface block in the next shader (fragment shader). The block name should be same but the instance name can be anything
+
+- Recall that when using more than one shader we continuously have to set uniform variables where most of them are exactly the same for each shader
+
+- Uniform buffer objects allow is to declare a set of global uniform variables that remain the same over any number of shader programs. When using uniform buffer objects we set the relevant uniforms once in fixed GPU memory. We do still have to manually set the uniforms that are unique per shader
+
+- Creating and configuring a uniform buffer object requires because a uniform buffer object is buffer like any other buffer we can create one via glGenBuffers, bind it to the GL_UNIFORM_BUFFER buffer target and store all the relevant uniform data into the buffer
+
+- The content of a uniform block is stored in a buffer object which is effectively nothing more than a reserved piece of global GPU memory. Because this piece of memory holds no information on what kind of data it holds, we need to tell OpenGL what parts of the memory correspond to which uniform variables in the shader
+
+- By default GLSL uses a uniform memory layout called a shared layout- shared because once the offsets are defined by the hardware, they are consistently shared between multiple programs. With a shared layout GLSL is allowed to reposition the uniform variables for optimization as long as the variables order remains intact
+
+- Because we dont know at what offset each uniform variable will be we don't know how to precisely fill our uniform buffer. One option would be to query this information with functions like glGetUniformIndices
+
+- While a shared layout gives us some space saving optimizations, we'd neeed to query the offset for each uniform variable which translates to a lot of work
+
+- The general practice is to use a std140 layout instead of a shared layout
+
+The std140 explicitly states the memory layout for each variable and for each variable we calculate its aligned offset: the byte offset of a variable from the start of the block
+
+- The aligned byte offset of a variable must be equal to a multiple of its base alignment
+
+- 
 
 #### *Geometry Shader*
 
