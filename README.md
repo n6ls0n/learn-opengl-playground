@@ -1008,11 +1008,16 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - In OpenGL context there are a number of binding points defined where we can link a unifrom buffer to. Once we have created a unifrom buffer, we link it to one of those binding points and we also like the uniform block in the shader to the same binding point effectively linkng them together
 
-- We cna bind multiple uniform buffers to different binding points. Because shader A and shader B both have a uniform block linked to the same binding point 0, their uniform blocks share the same uniform data found in uboMatrices; a requirement being that both shaders defined the same Matrices uniform block
+- We can bind multiple uniform buffers to different binding points. Because shader A and shader B both have a uniform block linked to the same binding point 0, their uniform blocks share the same uniform data found in uboMatrices; a requirement being that both shaders defined the same Matrices uniform block
 
 - To set a shader uniform block to a specific binding point we call glUniformBlockBinding that takes a program object, a uniform block index and the binding point to link to
 
 - The uniform block index is a location index of the defined uniform block in the shader. THis cna retrieved via a call to glGetUniformBlockIndex that accepts a program object and the name of the uniform block
+
+- Uniform buffer objects have several advantages over single uniforms.
+    1. Setting a lot of uniforms at once is faster than setting multiple uniforms one at a time
+    2. If you want to change the same uniform over several shaders, it is much easier to change a uniform once in a uniform buffer
+    3. We can use a lot more uniforms in shaders using uniform buffer objects
 
 #### *Geometry Shader*
 
