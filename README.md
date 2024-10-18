@@ -1012,7 +1012,7 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - To set a shader uniform block to a specific binding point we call glUniformBlockBinding that takes a program object, a uniform block index and the binding point to link to
 
-- The uniform block index is a location index of the defined uniform block in the shader. THis cna retrieved via a call to glGetUniformBlockIndex that accepts a program object and the name of the uniform block
+- The uniform block index is a location index of the defined uniform block in the shader. This can be retrieved via a call to glGetUniformBlockIndex that accepts a program object and the name of the uniform block
 
 - Uniform buffer objects have several advantages over single uniforms.
     1. Setting a lot of uniforms at once is faster than setting multiple uniforms one at a time
@@ -1020,6 +1020,20 @@ The std140 explicitly states the memory layout for each variable and for each va
     3. We can use a lot more uniforms in shaders using uniform buffer objects
 
 #### *Geometry Shader*
+
+- Between the vertex and the fragment shader, there is an optional shader stage called geometry shader.
+
+- A geometry shader takes as input a set of vertices that form a single primitive e.g. a point or a triangle and then it can transform these vertices as it sees fit before sending thme to the next shader stage
+
+- It is able to convert the original primitive (set of vertices) to completely different primitives, possibly generating more vertices that were initially given
+
+- At the start of a geometry shader we need to declare the type of primitive input we're receiving from the vertex shader
+
+- Most render primitives contain more than one 1 vertex. The geometry shader recieves all vertices of a primitive as its input
+
+- We can geometry shaders to dynamically generate new shapes on the fly
+
+- A triangle strip is a more efficient way to draw triangles with fewer vertices. After the first triangle is drawn, each subsequent vertex generates another triangle next to the first triangle: every 3 adjacent vertices will form a triangle. If we have a total of 6 vertices that form a triangle. If we have a total of 6 vertices that form a triangle strip we'd get the following triangles (1,2,3), (2,3,4), (3,4,5), (4,5,6); forming a total of 4 triangles. A triangle strip needs at least N >=3 vertices and will generate N-2 triangles
 
 #### *Instancing*
 
