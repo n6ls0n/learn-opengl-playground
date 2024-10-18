@@ -974,6 +974,17 @@ Below are some notes I took, feel free to remove them.
 
 - Assuming an output interface block has been declared in the vertex shader, we also need to declare an input interface block in the next shader (fragment shader). The block name should be same but the instance name can be anything
 
+- An example of an interface block used in a fragment shader would be:
+
+  ``` cpp
+  in VS_OUT
+  {
+      vec2 TexCoords;
+  } fs_in;
+  ```
+
+  "VS_OUT" is the block name which must be the same in whichever shader it is declared in and "fs_in" is the instance name which can change between shaders to enhance the readability of the code
+
 - Recall that when using more than one shader we continuously have to set uniform variables where most of them are exactly the same for each shader
 
 - Uniform buffer objects allow is to declare a set of global uniform variables that remain the same over any number of shader programs. When using uniform buffer objects we set the relevant uniforms once in fixed GPU memory. We do still have to manually set the uniforms that are unique per shader
