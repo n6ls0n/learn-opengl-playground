@@ -1056,11 +1056,17 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - The solution to this problem is instancing which would allow us to send the data over to the GPU once and then tell OpenGL to draw multiple objects using this data with a single drawing call
 
-- Instancing is technique where we draw many (equal mesh data) objects at once with a single render call sacing us all the CPU -> GPU communications each time we need to render an object
+- Instancing is technique where we draw many (equal mesh data) objects at once with a single render call saving us all the CPU -> GPU communications each time we need to render an object
 
-- 
+- When rendering a lot of instances, a limit will eventually be hit in terms of the number of uniform data that can be sent to the shaders
+
+- An alternative is instanced arrays which are defined as a vertex attribute that are updated per instance instead of per vertex thus allowing us to store much more data
+
+- With vertex attributes, at the start of each run of the vertex shader, the GPU will retrieve the next set of vertex attributes that belong to the current vertex. When defining a vertex attribute as an instanced array however, the vertex shader only updates the content of the vertex attribute per instance. This allows us to use the standard vertex attributes for data per vertex and use the instanced array for storing data that is unique per instance
 
 #### *Anti Aliasing*
+
+- 
 
 ### Advanced Lighting
 
