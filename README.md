@@ -1048,6 +1048,18 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 #### *Instancing*
 
+- Assuming we have a scene where we draw the same model multiple times with different world transformations
+
+- Drawing each of these individually would lead to a performance bottle neck because of the numerous draw calls
+
+- Compared to rendering the actual vertices, telling the GPU to render your vertex data with functions like glDrawArrays or glDrawElelments eats up quite some performance since OpenGL must make necessary preparations before it can draw your vertex data (like telling the GPU which buffer to read data from, where to find vertex attributes and all this over the the relatively slow CPU to GPU bus). So even though rendering the vertices is super fast, giving the GPU the commands to render them isn't
+
+- The solution to this problem is instancing which would allow us to send the data over to the GPU once and then tell OpenGL to draw multiple objects using this data with a single drawing call
+
+- Instancing is technique where we draw many (equal mesh data) objects at once with a single render call sacing us all the CPU -> GPU communications each time we need to render an object
+
+- 
+
 #### *Anti Aliasing*
 
 ### Advanced Lighting
