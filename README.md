@@ -1066,7 +1066,40 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 #### *Anti Aliasing*
 
-- 
+- Some renderings may end up having jagged edges. This is because of how the rasterizer transforms the vertex data into actual fragments behind the scene
+
+- The effect of clearly seeing the pixel formations that an edge is composed of is called aliasing. There are quite a few techinques out there called anti-aliasing techniques that fight this aliasing behaviour by producing smoother edges
+
+- There a few techinques that have been invented to address this but one that we will focus on is super sample anti-aliasing (SSAA). It temporarily uses a much higher resolution render buffer to render the scene in (super sampling). Then when the full scene is rendered, the resolution is downsampled back to the normal resolution. This extra resolution was used to prevent these jagged edges.
+
+- While it did provide us with a solution to the aliasing problem, it came with a major performance drawback since we have to draw a lot more fragments than usual. This technique was therefore not used for an extended period
+
+- It did however give birth to a more modern technique call multisample anti-aliasing (MSAA) that borrows from the concepts behind SSAA while implementing a much more efficient approach. It is a technique that is built into OpenGL
+
+- To understand what multisampling is and how it works into solving the aliasing problem, we first need to understand the OpenGL rasterizer
+
+- The rasterizer is the combination of all algorithms and processes that sit between our final processed vertices and the fragment shader
+
+- The rasterizer takes all the vertices belonging to a single primitive and transforms this to a set of fragmnets. Vertex coordinates can theoretically have any coordinate but fragments cant since they are bound by the resolution of the screen
+
+- There will almost never be a one-on-one mapping between vertex coordiantes and fragments, so the rasterizer has to determine in some way what fragment/screen-coordinate each specific vertex will end up at
+
+- The way MSAA works under the hood is not by using a single sample point to determine the coverage of a primitive defined by a group of vertices but instead using multiple sample points
+
+- Instead of a single point at the center of each pixel, you place 4 subsamples in a general pattern and use thos to determine pixel coverage
+
+- Assuming that 2 subsamples were covered and thus would run the fragment shader, the next step is to determine a color for this specific pixel. Our initial guess would be that we run the fragment shader for each covered subsample and later average the colors of eahc subsample per pixel
+
+- In this case, we would run tje fragment shader twice on the interpolated vertex data at each subsample and store the resulting color in those sample points. This isn't how it works because this would mena we need to run a lot more fragment shaders than without multisampling drastically reducing performance
+
+- How MSAA really works is that the fragment shader is only run once per pixel (for eahc primitive) regardless os how many subsamples are covered (by a triangle). The fragment shader runs with the vertex data interpolated to the center of the pixel. MSAA then uses a larger depth/stencil buffer to determine subsample coverage. the number of subsamples covered determines how much pixel color contributes to the framebuffer
+
+- From the example, since only 2 of the 4 samples were convered, half of the triangle's color is mixed with the framebuffer color
+
+- The result is a higher resolution buffer (with higher resolution depth/stencil) where all the primitive edges now produce a smoother pattern
+
+- Depth and stencil values are stored per subsample and even though we only run the fragment shader once, color values are stored per subsample as well for the case of multiple triangles overlapping a single pixel. For depth testing, the vertex's depth value is interpolated to each subsample before running the depth test. For stencil testing we store the stencil valies per subsample. This does mean that the size of the buffers are now increased by the amount of subsamples per pixel
+
 
 ### Advanced Lighting
 
