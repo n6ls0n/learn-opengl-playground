@@ -1100,6 +1100,39 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - Depth and stencil values are stored per subsample and even though we only run the fragment shader once, color values are stored per subsample as well for the case of multiple triangles overlapping a single pixel. For depth testing, the vertex's depth value is interpolated to each subsample before running the depth test. For stencil testing we store the stencil valies per subsample. This does mean that the size of the buffers are now increased by the amount of subsamples per pixel
 
+- If we want to use MSAA in OpenGL we need to use a buffer that is able to store more than one sample value per pixel. We need a type of buffer that can store a given amount of multisamples and this is called a multisample buffer
+
+- Most windowing systems are able to provide us a multisample buffer instead of a default buffer. GLFW also gives this functionality and all we need to do is hint GLFW that we'd like to use a multisample buffer with N samples instead of a normal buffer by calling glfwWindowHint before creating the window
+
+    ```cpp
+    glfwWindowHint(GLFW_SAMPLES, 4);
+    ```
+
+- When we now call glfwCreateWindow, we create a rendering window, but this time with a buffer containing 4 subsamples per screen coordinate. This also means that the size of the buffer is increased by 4
+
+- Now that we asked GLFW for multisampled buffers we need to enable multisampling by calling glEnable with GL_MULTISAMPLE
+
+- The actual multisampling algos are implemented in the rasterizer in the OpenGL driver of your system so there isn't much else to do
+
+- Because GLFW takes care of creating the multisampled buffers, enabling MSAA is east. If we want to use our own framebuffers however, we have to generate the multisampled buffers ourselves; now we do need to take carte of creating multisampled buffers
+
+- There are two ways we can create multisampled buffers to act as attachments for framebuffers: texture attachments and renderbuffer attachments.
+
+- To create a texture that supports storage of multiple sample points we use glTexImage2DMultisample instead of glTexImage2D that accepts GL_TEXTURE_2D_MULTISAPLE as its texture target
+
+- Like textures, creating a multisampled renderbuffer object isn't difficult. It is even quite easy since all we need to change is glRenderbufferStorage to glRenderbufferStorageMultisample when we configure the (currently bound) renderbuffer's memory storage
+
+- Rendering to a multisampled framebuffer is straightforward. Whenever we draw anything while the framebuffer object is bound, the rasterizer will take care of all the multisample operations. However, because a multisampled buffer is a bit special, we can't directly use the buffer for other operations like sampling it in a shader
+
+- A multisampled image contains much more information than a normal image so what we need ro do is downscale or resolve the image. Reoslving a multisampled framebuffer is generally done through glBitFrameBuffer that copies a region from one framebuffer to the other while also resolving any multisampled buffers
+
+- If we wanted to use the result of a multisampled framebuffer to do stuff like post-processing, we can' directly use the multisampled textures in the fragment shader. What can done is to blit the multisampled buffer to a different FBO with a non-multisampled texture attachment
+
+- We then use this ordinary color attahcment texutre for post-processing, effectively post-processing an image rendered via multisampling.
+
+- This does mean we have to generate a new FBO that acts solely as an intermediate framebuffer object to resolve the multisampled buffer into; a normal 2D texture we can use in the fragment shader
+
+- Combining multisampling with off-screen rendering we need to take care of some extra steps. The steps are worth the extra effort though since multisampling significantly boosts the visual quality of the scene. Do note that enabling multisampling can noticeably reduce performance the more samples you use
 
 ### Advanced Lighting
 
@@ -1127,8 +1160,8 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - How-To Texture Wavefront (.obj) Models for OpenGL - <https://www.youtube.com/watch?v=4DQquG_o-Ac>
 
-- Shirt Article on Image Kernels - <https://setosa.io/ev/image-kernels/>
+- Short Article on Image Kernels - <https://setosa.io/ev/image-kernels/>
 
-GLSL Built-in Variables - <https://www.khronos.org/opengl/wiki/Built-in_Variable_(GLSL)>
+- GLSL Built-in Variables - <https://www.khronos.org/opengl/wiki/Built-in_Variable_(GLSL)>
 
-OpenGL Wiki - <https://www.khronos.org/opengl/wiki/Main_Page>
+- OpenGL Wiki - <https://www.khronos.org/opengl/wiki/Main_Page>
