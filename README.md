@@ -58,7 +58,20 @@ Below are some notes I took, feel free to remove them.
   - [Instancing](#instancing)
   - [Anti Aliasing](#anti-aliasing)
 - [Advanced Lighting](#advanced-lighting)
+  - [Advanced Lighting Subsection](#advanced-lighting-subsection)
+  - [Gamma Correction](#gamma-correction)
+  - [Shadows_Shadow-Mapping](#shadows_shadow-mapping)
+  - [Shadows_Point-Shadows](#shadows_point-shadows)
+  - [Normal Mapping](#normal-mapping)
+  - [Parallax Mapping](#parallax-mapping)
+  - [HDR](#hdr)
+  - [Bloom](#bloom)
+  - [Deferred Shading](#deferred-shading)
+  - [SSAO](#ssao)
 - [PBR](#pbr)
+  - [Theory](#theory)
+  - [Lighting-PBR](#lighting-pbr)
+  - [IBL](#ibl)
 - [Helpful Links](#helpful-links)
 
 ### Getting Started
@@ -1136,7 +1149,33 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 ### Advanced Lighting
 
+#### Advanced Lighting Subsection
+
+#### Gamma Correction
+
+#### Shadows_Shadow-Mapping
+
+#### Shadows_Point-Shadows
+
+#### Normal Mapping
+
+#### Parallax Mapping
+
+#### HDR
+
+#### Bloom
+
+#### Deferred Shading
+
+#### SSAO
+
 ### PBR
+
+#### Theory
+
+#### Lighting-PBR
+
+#### IBL
 
 ### Helpful Links
 
