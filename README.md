@@ -1181,6 +1181,74 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 #### Gamma Correction
 
+- As soon as we compute the final pixels colors of the scene, we will have to display them on a monitor. In the old days of digital imaging most monitors were CRT monitors
+
+- These monitors had the physical property thatv twice the input voltage did not result in twice the amount of brightness
+
+- Doubling the input voltage resulted in a brightness equal to an exponential relationship of roughly 2,2 known as the gamma of the monitor
+
+- This happens to coincidentally match how human beings measure brightness as brightness is also displayed with a similar inverse power relationship
+
+- Because the human eyes prefer to see brightness colors according to the top scale, monitors (still today) use a power relationship for displaying the output colors so that the original physical brightness colors are mapped to the non-linear brightness colors in the top scale
+
+- This non-linear mapping of monitors does output more pleasing berightness results for our eyes but when it come to rendering graphics there is one issue: all the color and brightness options we configure in out applications are based on what we percieve from the monitor and this all the options are actually non-linear brightness/color options
+
+- If we double a color in linear space, its result is indeed double the value. For instance, take a light's color vector (0.5, 0.0, 0.0) which represent a semi-dark red light. If we would double this light in linear space, it would become (1.0,0.0,0.0). However, the original color gets displayed on the monitor as (0.218, 0.0, 0.0). Here's where the issue starts to rise: once we sdouble the drak-red light in linear space, it actually becomes more than 4.5 times as bright on the monitor
+
+- Previously we have assumd that we working in linear space, but we've actually been working in the monitor's output space so all colors and lighting variables we configured weren't physically correct, but merely looked (sort of) right on our monitor
+
+- For this reason, we (and artists) generally set lighting values way brighter than they should be (since the monitor darkens them) which as a result makes most linear-space calculations incorrect. Note that the monitor and linear graph both start and end at the same position; it is the intermediate values that are darkened by the display
+
+- Because colors are configured based on the display's output, all intermediate lighting calculations in linear space are physically incorrect. This becomes more obvious as more advanced lighting algorithms are in place
+
+- Without properly correcting this monitor gamma, the lighting looks wrong and artists will have a hard time getting realistic and good-looking results. The solution is apply gamma correction
+
+- The idea of gamma correction is to apply the inverse of the monitor's gamma to the final output color before displaying to the monitor
+
+- Basically, we multiply each of the linear output colors by the inverse gamma curve (making them brighter) and as soon as the colors are displayed on the monitor, the monitor's gamma curve is applied and the resulting colors become linear. We effectively brighten the intermediate colors so that as soon as the monitor darkens them, it balances out
+
+- A gamma value of 2.2 is a default gamma value that roughly estimates the average gamma of most displays. The color space as a result of this gamma of 2.2 is called the sRGB color space (not 100% exact but close)
+
+- Each monitor has their own gamma curves, but a gamma value of 2.2 gives good results on most monitors. For this reason games often allow players to change the game's gamma setting as it varties slightly per monitor
+
+- There are two ways to apply gamma correction to your scene:
+  1. By using OpenGL's built-in sRGB framebuffer support
+  2. By doing the gamma correction ourselves in the fragment shaders
+
+- The first option is probably the easiest but also gives you less control. By enabling GL_FRAMEBUFFER_SRGB you tell OpenGl that each subsequent drawing command should first gamma correct colors (from the sRGB color space) before storing them in color buffers
+
+- The sRGB is a color space that roughly corresponds to a gamma of 2.2 and a standard for most devices
+
+- After enabling GL_FRAMEBUFFER_SRGB, OpenGL automatically performs gamma correction after each fragment shader run to all subsequent framebuffers, including the default framebuffer
+
+- Something to keep in mind with this approach and the other approach is that gamma correction (also) transforms the colors from linear space to non-linear space so it is very important you only do gamma correction at the last and final step
+
+- If you gamma correct your colors before the final output, all subsequent oprations on those colors will operate on incorrect values. For instance, if you use multiple framebuffers you probably want intermediate results passed in between the framebuffers to remain to remain in linear space and only have the last framebuffer apply gamma correction before being sent to the monitor
+
+- The second approach requires a bit more work but also gives complete control over the gamma operations. We apply gamma correction at the end of each relevant fragment shader run so the final colors end up gamma corrected before being sent out to the monitor
+
+- An issue with this approach is that in order to be consistent you have to apply gamma correction to each fragment shader that contributes to the final output. If you have a dozen frgament shaders for multiple objects, you have to add the gamma correction code to each of these shaders. An easier solution would be to introduce a post-processing stage in your render loop and apply gamma correction on the post-processed quad as a final step which you'd only have to do once.
+
+- Moving on the subjec to of sRGB textures, because monitors display colors with gamma applied, whenever you draw, edit or paint a picture on your computer, you are picking colors based on what you see on the monitor
+
+- This effectively means all the pictures you create or edit are not in linear space but in sRGB space e.g  doubling a dark-red color on your screen based on percieve brightness, does not equal double the red component
+
+- As a result, when texture artists create art by eye, all the textures' values are in sRGb space so if we use thise texutres as they are in out rendering application we have to take this into account
+
+- Before we knew about gamma correction this wasn't really an issue because the textures looked good in sRGB space which is the same space we worked in; the textures were displayed exactly as they are which was fine, However, now that we're displaying everything in linear space, the texture colors will lokk off
+
+- This is because the image gets gamma corrected twice. The reason being that when we create an image based on what we see on the monitor, we effectviely gamma correct the color values of an image so that it looks right on the monitor. Because we then gamma correct in the renderer, the image usually ends up way to bright
+
+- To fix this issue, we have to make sure texture artists work in linear space. However, since it's easier to work in sRGB space and most tools don't even support linear texturing, this is probably not the preferred solution
+
+- The other solution is the re-correct or transform these sRGB textures to linear space before doing any calculations on their color values
+
+- To do this for each texture in sRGB space is quite troublesome though. Luckily OpenGL gives us yet another solution to our porblems by giving us the GL_SRGB and GL_SRGB_ALPHA internal texture formats
+
+- If we create a texture in OpenGL with any of these two sRGB texture formats, OpenGL will automatically correct the colors to linear space as soon as we use them, allowing us to propely work in linear space
+
+- You should be careful when specifying your textures in sRGB space as not all textures will actually be in sRGB space. Textures used for retrieving lighting parameters (like specular maps and normal maps) are almost always in linear space, so if you were to  configure these as sRGB textures, the lighting will look odd. Be careful which textures you specify as sRGB
+
 #### Shadows_Shadow-Mapping
 
 #### Shadows_Point-Shadows
