@@ -1265,8 +1265,39 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - In summary, gamma correction allows us to do all our shader/lighting calculations in linear space. Because linear space makes sense in the physical world, most physical equations now actually give good results (like real light attenuation). The more advanced the lighting becomes, the easier it is to get good looking (and realistic) results with gamma correction. That is also why it's advised to only really twewak your lighting parameters as soon as you have gamma correction in place
 
-
 #### Shadows_Shadow-Mapping
+
+- Shadows are a result of the abscence of light due to occlusion. When a light source's light rays do not hit an object because it get occluded by some other object, the object is in shadow. Shadows add a great deal of realism to a lit scene and make it easier for a viewer to observe spatial relationships. They give a great sense of depth to our scene and objects
+
+- Shadows are a bit tricky to implement though, specifically because in current real-time (rasterized graphics) research a perfect shadow algorithm hasn't been developed yet. There are several good shadow approximation techniques but they all have little quirks and annoyances which we have to take into account
+
+- One technique used by most videogames that gives decent results and is relatively easy to implement is shadow mapping
+
+- Shadow mapping is not too difficult, doesn't cost too much in performance and quite easily extends into more advanced algorithms
+
+- The idea behind shadow mapping is quite simple: we render the scene from the light's point of view and everything we see from the light's perspective is lit and everything we can't see must be in shadow.
+
+- We want to get the point on the ray where it first hit and object and compare this closest point to the other points on this ray. We then do a basic test to see if a test point's ray is further down the ray than the closest point and if so, the test point must be in shadow
+
+- Iterating through possibly thousands of light rays from such a light source is an extremely inefficient approach and doesn't lend itself too well for real-time rendering. We can so something similar but without casting light rays.
+
+- Instead we use something familiar: the depth buffer
+
+- Recall from depth testing that a value in the depth buffer corresponds to the depth of a fragment clamped [0,1] from the camera's point of view
+
+- What if we were to render the scene from the light's perspective and store the resulting depth values in texture?
+
+- This way, we can sample the closest depth values as seen from the light's perspective. After all, the depth values show the first fragment visible from the light's perspective
+
+- We store all these depth values in a texture that we call a depth map or shadow map
+
+- We create the depth map by rendering the scene (from the light's perspective) using a view and projection matrix specific to that light source.
+
+- This projection and view matrix together form a transformation T that transforms any 3D position to the light's visible coordinate space
+
+- A directional light doesn't have a position as it's modelled to be infinitely far away. However, for the sake of the shadow mapping we need to render the scene from a light's perspective and thus render the scene from a position somewhere along the lines of the light direction
+
+- Shadow mapping therefore consists of two passes: first we render the depth map and in the second pass we render the scene as normal and use the generated depth map to calculate whether fragments are in shadow
 
 #### Shadows_Point-Shadows
 
