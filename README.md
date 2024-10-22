@@ -1249,6 +1249,23 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - You should be careful when specifying your textures in sRGB space as not all textures will actually be in sRGB space. Textures used for retrieving lighting parameters (like specular maps and normal maps) are almost always in linear space, so if you were to  configure these as sRGB textures, the lighting will look odd. Be careful which textures you specify as sRGB
 
+- Lighting attenuation is also different with gamma correction. In the real physical world, lighting attenuates inversely and proportional to the squared distance from a light source. In normal English it simply means that the light strength is reduced over the distance to the light source squared.
+
+  ```cpp
+  float attenuation = 1.0 / (distance * distance)
+  ```
+
+- However, when using this equation the attenuation effect is usually too strong, giving lights a small radius that doesn't look physically right. For that reason other attenuation are  used or the linear equivalent is used where we divide by just the distance rather than the distance squared
+
+- The linear equivalent gives more plausible results compared to its quadratic variant without gamma correction, but when we enable gamma correction, the linear attenuation looks too weak and the physically correct quadratic attenuation suddenly gives the better results
+
+- The cause of this difference is that light attenuation functions change brightness and as we weren't visualizing our scene in linear space we chose the attenuation functions that looked best on our monitor, but weren't physically correct
+
+- Let's revisit the squared attenuation function. If we were to use this function without gamma correction, the attenuation function becomes (1/distance^2)^2.2 when displayed on a monitor. This creates a much larger attenuation from what we originally anticipated. This also explains why the linear equivalent makes much more sense without the gamma correction as this effectively becomes (1/distance)^2.2 = 1/distance^2.2, which is a lot similar to the physical equivalent
+
+- In summary, gamma correction allows us to do all our shader/lighting calculations in linear space. Because linear space makes sense in the physical world, most physical equations now actually give good results (like real light attenuation). The more advanced the lighting becomes, the easier it is to get good looking (and realistic) results with gamma correction. That is also why it's advised to only really twewak your lighting parameters as soon as you have gamma correction in place
+
+
 #### Shadows_Shadow-Mapping
 
 #### Shadows_Point-Shadows
@@ -1300,3 +1317,9 @@ The std140 explicitly states the memory layout for each variable and for each va
 - GLSL Built-in Variables - <https://www.khronos.org/opengl/wiki/Built-in_Variable_(GLSL)>
 
 - OpenGL Wiki - <https://www.khronos.org/opengl/wiki/Main_Page>
+
+- Gamma Correction Links:
+  1. In-depth article from John Novak - <http://blog.johnnovak.net/2016/09/21/what-every-coder-should-know-about-gamma/>
+  2. Another article from Cambridge in Color - <http://www.cambridgeincolour.com/tutorials/gamma-correction.htm>
+  3. Article from David Rosen - <http://blog.wolfire.com/2010/02/Gamma-correct-lighting>
+  4. Extra practical considerations - <http://renderwonk.com/blog/index.php/archive/adventures-with-gamma-correct-rendering/>
