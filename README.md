@@ -1151,6 +1151,34 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 #### Advanced Lighting Subsection
 
+- Recall that Phong lighting is a great and very efficient approximation of lighting, but its specular reflections break down in certain conditions, specifically when the shininess property is low resulting in a large (rough) specular area
+
+- In a case like this, the edges of the specular area are immediately cut off. The reason this happens is because the angle between the view and reflection vector doesn't go over 90 degrees. If the angle is larger than 90 degrees, the resulting dot product becomes negative and this results in a specular exponent of 0.0 assuming it was 1.0 to being with
+
+- We could think won't be a problem since we shouldn't get any light with angles higher than 90 degrees
+
+- That line of thinking only applies to the diffuse component where an angle higher than 90 degrees between the normal and light source means the light source is below the lighted surface and thus the light's diffuse contribution should be equal to 0.0
+
+- However, wiht specular lighting we're not measuring the angle between the light source and the normal, but between the view and reflection vecor
+
+- The issue then becomes apparent because when the angle between the view and reflection vector is larger than 90 degrees, the specular contribution gets nullified
+
+- This generally isn't a problem since the view direction is far from the reflection direction, but if we use a low specular component, the specular radius is large enough to have a contribution under these conditions. Since we're nullifying this contribution at angles larger than 90 degrees, an artifact occurs
+
+- In 1977, the Blinn-Phong shading model was introduced by James F. Blinn as an extension to the Phong shading model that has been previously used
+
+- The Blinn-Phong shading model is largely similar but approaches the specular model slightly differently which results in a solution to the problem highlighted above.
+
+- Instead of relying on a reflection vector we're using a so called halfway vector that is a unit vector exactly halfway between the view direction and the light direction. THe close this halfway vector aligns with the surface's normal vector, the higher the specular contribution
+
+- When the view direction is perfectly aligned with the (now imaginary) reflection vector, the halfway vector aligns perfectly with the normal vector. The closer the view direction is to the original reflection direction, the stronger the specular highlight
+
+- Another subtle difference between the Phong and Blinn-PHong shading is that the angle between the halfway vector and the surface normal is often shorter than the angle between the view and reflection vector
+
+- As a result, to get visuals similat to Phong shading, the specular shininess exponent has to be set a bit higher
+
+- A general rule of thumb is to set it between 2 and 4 times the Phong shininess exponent
+
 #### Gamma Correction
 
 #### Shadows_Shadow-Mapping
