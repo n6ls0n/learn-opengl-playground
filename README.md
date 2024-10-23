@@ -1299,7 +1299,9 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - Shadow mapping therefore consists of two passes: first we render the depth map and in the second pass we render the scene as normal and use the generated depth map to calculate whether fragments are in shadow
 
--
+- The code to check if fragment is in shadow is executed in the fragment shader but the light space transformation in the vertex shader. This light space transformation is done on the world-space vertex position
+
+- 
 
 #### Shadows_Point-Shadows
 
