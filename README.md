@@ -1346,6 +1346,35 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - Another consideration is that objects that are close to the shadow reciever (like the distant cube) may still give incorrect results
 
+- Another visual discrepancy is the regions outside the light's visible frustum are considered to be in shadow while they're usually not. This happens because projected coordinates outside the light's frustum are higher than 1.0 and will thus sample the depth texture outsidee its default range of [0,1]. Based on the texture's wrapping methods, we will get incorrect depth results not based on the real depth values from the light source
+
+- What we would rather have is that all the coordinates outside the depth map's range have a depth of 1.0 which as a result measn these coordinates will never be in shadow (as no object will have a dpeth larger than 1.0)
+
+- We will also notice that the coordinates outside the far plane of the light's orthographic frustum. You can see that this dark region always occurs at the far end of the light source's frustum by looking at the shadow directions
+
+- By checking the far plane and clamping the depth map to a manually specified border color, we solve the over-sampling of the depth map
+
+- The result of all this means that we only have shadows where the projected fragment coordinates sit inside the depth map range so anything outside the light frustum will have no visible shadows
+
+- Because depth maps have a fixed resolution, the dpeth frequently spans more than one fragment per texel. As a result multiple fragments sample the same depth value from the depth map and come to the same shadow conclusions , which produces these jagged blocky edges
+
+- You can reduce these blokcy shadows by increasing the depth map resolution or by trying to fit the light frustum as closely to the scene as possible
+
+- Another partial solution to these jagged edges is called PCF or percentage-closer filtering which is a term that hosts many differen filtering function that produce softer shadows, making them appear less blokcy or hard
+
+- The idea is to sample more than once from the depth map, each time with slightly different texture coordinates. For each individual sample, we check whether it si in shadow or not. All the sub-results are then combined and averaged and we get a nice soft looking shadow.
+
+- One simple implementation of PCF is to simply sample the surrounding texels of the depth map and average the results
+
+- There is a difference between rendering the depth map with an orthographic or a perspective projection matrix
+
+- An orthographic projection matirce does not deform the scene with perspective so all view/light rays are parallel. This makes it a great projection matrix for directional lights
+
+- On the other hand, a perspective projection matrix does deform all vertices based on perspective which gives different results
+
+- Perspective projections make most sense for light sources that have actual location, unlike directional lights. Perspective projections are most often used with spotlights and points lights, while orthographic projections are used for directional lights
+
+- Another subtle difference with using a perspective projection matrix is that visualizing the depth buffer will often give an almost completely white result. This happens because with perspective projection, the depth is transformed to non-linear depth values with most of its noteceable range close to the near plane. To be able to properly view the depth values as we did with the orthographic projection, you first want to transform the non-linear depth values to linear
 
 #### Shadows_Point-Shadows
 
@@ -1410,3 +1439,8 @@ The std140 explicitly states the memory layout for each variable and for each va
 - Ray Tracing in One Weekend Book Series - <https://raytracing.github.io/>
 
 - Physically Based Rendering Book- <https://www.pbr-book.org/>
+
+- Shadow Mapping Links:
+  1. Microsoft article with lots of techniques to improve the quality of shadow maps - <https://learn.microsoft.com/en-us/windows/win32/dxtecharts/common-techniques-to-improve-shadow-depth-maps?redirectedfrom=MSDN>
+  2. Another shadow mapping tutorial by ogldev - <http://ogldev.atspace.co.uk/www/tutorial23/tutorial23.html>
+  3. Opengl-tutorial shadow mapping - <https://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/>
