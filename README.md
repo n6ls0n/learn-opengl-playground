@@ -1299,6 +1299,8 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - Shadow mapping therefore consists of two passes: first we render the depth map and in the second pass we render the scene as normal and use the generated depth map to calculate whether fragments are in shadow
 
+-
+
 #### Shadows_Point-Shadows
 
 #### Normal Mapping
@@ -1354,3 +1356,11 @@ The std140 explicitly states the memory layout for each variable and for each va
   2. Another article from Cambridge in Color - <http://www.cambridgeincolour.com/tutorials/gamma-correction.htm>
   3. Article from David Rosen - <http://blog.wolfire.com/2010/02/Gamma-correct-lighting>
   4. Extra practical considerations - <http://renderwonk.com/blog/index.php/archive/adventures-with-gamma-correct-rendering/>
+
+- Learning Modern 3D Graphics Programming - <https://paroj.github.io/gltut/>
+
+- Learn Vulkan - <https://vulkan-tutorial.com/Introduction>
+
+- Ray Tracing in One Weekend Book Series - <https://raytracing.github.io/>
+
+- Physically Based Rendering Book- <https://www.pbr-book.org/>
