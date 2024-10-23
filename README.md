@@ -1305,6 +1305,48 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - The first thing to do to check whether a fragment is in shadow, is transform the light-space fragment position in clip-space to NDC. When we output a clip-space vertex position to gl_Position in the vertex shader, OpenGL automatically does a perspective divide e.g. transform clip-space coordinates in the range [-w,w] to [-1,1] by dividing the x,y and z component's by the vector's w component (Note also this is how the depth buffer is populated)
 
+- When we implement shadow mapping, there are usually a few artifacts that we need to resolve as a result of implementing the algorithm detailed above
+
+- One artifact we usually run into is called shadow acne. This a scenario where a surface is rendered with obvious black lines in an alternating fashion
+
+- This occurs because the shadow map is limited by resolution and so multiple fragments can sample the same value from the depth map when they're relatively far away from the light source
+
+- While this is generally okay, it becomes an issue when the light source looks at an angle towards the surface and in that case, the depth map is also rendered from an angle. Several fragments then access the same tilted depth texel while some are above and some are below the floor. This leads to a shadow discrepancy. Because of this, some fragments are considered to be in shadow and some are not; giving the striped pattern alluded to earlier
+
+- We can solve this issue with a small little hack called a shadow bias where we simply offset the depth of the surface (or the shadow map) by a small bias amount such that the fragments are not incorrectly considered above the surface
+
+- With the bias applied, all the samples get a depth smaller that the surface's depth and thus the entire surface is correctly lit without any shadows. We can implement such a bias as follows:
+
+  ```cpp
+  float bias = 0.005;
+  float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
+  ```
+
+- The bias value is highly dependent on the angle between the light source and the surface. If the surface would have a steep angle to the light source, the shadows may still display shadow acne
+
+- A more solid approach would be to change the amount of bias based on the surface anfle towards the light: something we can solve with the dot product
+
+  ```cpp
+  float bias = max(0.05 * (1.0 - dot(normal, lightDir)), 0.005);
+  ```
+
+- Here we have a maximum bias of 0.05 and a minimum of 0.005 based on the surface's normal and light direction. This way, surfaces like the floor that are almost perpendicular to the light source get a small bias, while surfaces like the cube's side-faces get a much larger bias
+
+- A disadvantage of using shadow bias is that you're applying an offset to the actual depth of objects. As a result, the bias may become large enough to see a visible offset of shadows compared to the actual object locations
+
+- This shadow artifact is called Peter Panning since objects seem slightly detached from their shadows
+
+- We can use a little trick to solve most of the Peter Panning issue by using front face culling when rendering the depth map. Recall, that by default OpenGL culls back-faces. By telling OpenGL we want to cull front faces during the shadow map stage, we're switching that order around
+
+- Because we only need depth values for the depth map it shouldn't matter for solid objects whether we take the depth of their front faces or their back faces. Using their back face depths doesn't give wrong results as it doesn't matter if we have shadows inside objects; we can't see there anyways
+
+- This trick effectively solve the peter panning issues but ony for solid objects that actually have an inside without any openings
+
+- If you try to use peter panning on a single plane object, culling the front face of the object completely removes it
+
+- Another consideration is that objects that are close to the shadow reciever (like the distant cube) may still give incorrect results
+
+
 #### Shadows_Point-Shadows
 
 #### Normal Mapping
