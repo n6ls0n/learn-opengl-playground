@@ -1293,7 +1293,7 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - We create the depth map by rendering the scene (from the light's perspective) using a view and projection matrix specific to that light source.
 
-- This projection and view matrix together form a transformation T that transforms any 3D position to the light's visible coordinate space
+- This projection and view matrix together form a transformation T matrix that transforms any 3D position to the light's visible coordinate space
 
 - A directional light doesn't have a position as it's modelled to be infinitely far away. However, for the sake of the shadow mapping we need to render the scene from a light's perspective and thus render the scene from a position somewhere along the lines of the light direction
 
@@ -1301,7 +1301,9 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - The code to check if fragment is in shadow is executed in the fragment shader but the light space transformation in the vertex shader. This light space transformation is done on the world-space vertex position
 
-- 
+- Note that shadows are rarely dark, due to light scattering, we leave usually leave the ambient component  out of the shadow multiplications
+
+- The first thing to do to check whether a fragment is in shadow, is transform the light-space fragment position in clip-space to NDC. When we output a clip-space vertex position to gl_Position in the vertex shader, OpenGL automatically does a perspective divide e.g. transform clip-space coordinates in the range [-w,w] to [-1,1] by dividing the x,y and z component's by the vector's w component (Note also this is how the depth buffer is populated)
 
 #### Shadows_Point-Shadows
 
