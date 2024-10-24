@@ -1394,7 +1394,20 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - However, this is quite expensive as a lot of render calls are necessary for this single depth map
 
-- A nifty workaround trck would be to use a geometry shader instead that allows us to build the depth cubemap with just a single render pass
+- A nifty workaround trick would be to use a geometry shader instead that allows us to build the depth cubemap with just a single render pass
+
+- Since omnidirectional shadow maps are based on the same principles of traditional shadow mapping, it also leads to the same resolution dependent artifacts. PCF (Percentage-closer filtering) allows us to smooth out these jagged edges by filtering multiple samples around the fragment position and average the results
+
+- One difference from the PCF algo in the previous section is that a third dimension is added
+
+- We may run into an issue where a lot of the samples we take are redundant in that they sample close to the original direction vector and so it may make more sense to only sample in perpendicular directions of the sample direction vector
+
+- However as there is no easy way to figure out which sub-directions are redundant this becomes difficult
+
+- One trick we can use is to take an array of offset directions that are all roughly seperable e.g. each of them points in completely different directions. This would significantly reduce the number of sub-directions that are close together
+
+- One thing to note is that using geometry shaders to generate a depth map isn't necessarily faster than rendering the scene 6 times for each face. Using a geometry shader like this has its own performance penalties that may outweig the gain of using one in the first place. This of course depends on the type of environment, the specific video card drivers and plenty of other factors. We would then have to profile the system to figure out which method is more efficient for the scene
+
 
 #### Normal Mapping
 
@@ -1462,3 +1475,4 @@ The std140 explicitly states the memory layout for each variable and for each va
   1. Microsoft article with lots of techniques to improve the quality of shadow maps - <https://learn.microsoft.com/en-us/windows/win32/dxtecharts/common-techniques-to-improve-shadow-depth-maps?redirectedfrom=MSDN>
   2. Another shadow mapping tutorial by ogldev - <http://ogldev.atspace.co.uk/www/tutorial23/tutorial23.html>
   3. Opengl-tutorial shadow mapping - <https://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/>
+  4. Ogldev Multi-pass shadow mapping wiht point light - <https://ogldev.org/www/tutorial43/tutorial43.html>
