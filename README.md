@@ -1390,6 +1390,12 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - The hardest part of this technique is the depth cubemap generation
 
+- To create a cubemap of a light's surrounding depth vlaues we have to render the scene 6 times; one for each face of the cube. One obvious way to do this is render the scene 6 times with 6 different view matrices, each time attaching a different cubmap face the framebuffer object
+
+- However, this is quite expensive as a lot of render calls are necessary for this single depth map
+
+- A nifty workaround trck would be to use a geometry shader instead that allows us to build the depth cubemap with just a single render pass
+
 #### Normal Mapping
 
 #### Parallax Mapping
