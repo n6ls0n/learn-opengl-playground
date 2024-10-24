@@ -1408,8 +1408,39 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - One thing to note is that using geometry shaders to generate a depth map isn't necessarily faster than rendering the scene 6 times for each face. Using a geometry shader like this has its own performance penalties that may outweig the gain of using one in the first place. This of course depends on the type of environment, the specific video card drivers and plenty of other factors. We would then have to profile the system to figure out which method is more efficient for the scene
 
-
 #### Normal Mapping
+
+- All our scenes are filled with meshes, each consisting of hundreds or maybe thousands of triangles. We have already boosted their realism by  wrapping 2D textures on these flat triangles which hides the fact that the polygons are just tiuny flat triangles
+
+- Textures help but when you take a good close look at the meshes it is quite easy to see that underlying falt surfaces. Most real-life surfaces aren't flat however and exhibit a lot of bumpy details
+
+- For instance, take a brick surface. A brick surface is quite a rough surface and obviously not completely flat: it contains sunken cement stripes a lot of detailed little holes and cracks. if we were to view such a brick surface in a lit scene the immmersion gets easily broken
+
+- One solution to partially remedy fix the flat look is by using a specular map to pretend some surfaces are less lit due to depth or toher details but that's more of a hack than a real solution. What we need is some way to infrom the lighting system about all the little depth-like details of the surface
+
+- If we think about this from a light's perspective, how come the surface is lit as a completely flat surface? The answer is the surface's normal vector. From the lighting technique's point of view, the only way it determines the shape of an object is by its perpendicular normal vector
+
+- The brick surface from the earlier example only has a single normal vector and as a result the surafce is uniformly lit based on this normal vector's direction
+
+- What if, instead of a per-surface normal that is the same for each fragment, use a per-fragment normal that is different for each fragment
+
+- This way, we can slightly deviate the normal vector based on a surface's little details; this gives the illusion that the surface is a lot more complex
+
+- Byn using per-fragment normals we can trick the lighting into believing a surface consits of tiny little planes (perpendicular to their normal vectors) giving the surface and enormous boost in detail
+
+- This technique to use per-fragment normals compared to per-surface normals is called normal mapping or bump mapping. The tehcinque is relatively low cost
+
+- Since we only change the normal vectors per fragment there is no need to change the lighting equation. We now pass a per-fragment normal instead of an interpolated surface normal to the lighting and the lighting then does the rest
+
+- To get normal mapping to work we're going to need a per-fragment normal. Similar to what we did with diffuse and specular maps, we cna use a 2D texture to store per-fragment normal data. This way we can sample a 2D texture to get a normal vector for that specific fragment
+
+- While normal vectors are geometric entities and texture are generally only used for color information, storing normal vectors in a texture may not be immediately obvious. If you think about color vectors in texture they are represented as a 3D vector with an r,g and b component. We can similiar store a normal's vector's x, y and z component in the respective color components. Normal vectors range between -1 and 1 os they're first mapped to [0,1]
+
+- When the normal vectors have been transformed to an RGB color component like this, we can store a per-fragment normal derived from the shape of a surface onto a 2D texture
+
+- Most normal maps will have a blue-ish tint. This is because the normals are all closely pointing outwarsds towards the positive z-axis (0,0,1): a blue-ish color. he deviations in color represent normal vectors that are slightly offset from the general positive z direction, giving a sense of depth to the texture
+
+- For example, you can see that at the top of each brick the color tends to be more greenish, which make sense as the top side of a brick would have normals pointing more in the positive y direction which happens to be the color green
 
 #### Parallax Mapping
 
