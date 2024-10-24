@@ -1378,6 +1378,18 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 #### Shadows_Point-Shadows
 
+- We have created dynamic shadows with shadow mapping but this is mostly suited for directional (or spot) lights as the shadows are generated only in the direction of the light source. It is therefore known as directional shadow mapping as the depth (or shadow) map is generated from only the direction the light is looking at
+
+- In this section, we will focus on the generation of dynamic shadows in all surrounding directions. The technique we're using is perfect for point lights as a real point light would cast shadows in all directions. This technique is known as point (light) shadows or more formaly as omnidirectional shadow maps
+
+- The technique is mostly similar to directional shadow mapping: we generate a depth map from the light's perspective(s), sample the depth map based on the current fragment position, and compare each fragment with the stored depth value to see whether it is in shadow. The main differenc between directional shadow mapping and omnidirectional shadow mapping is the depth map we use
+
+- The depth map we need requires rendering a scene from all surrounding directions of a point light and as such a normal 2D depth map won't work; what if we were to use a cubemap instead? Because a cubemap can store full environment data with only 6 faces, it is possible to render the entire scene to each of the faces of a cubemap and sample these as the point light's surrounding depth values
+
+- The generated depth cubemap is then passed to the lighting fragment shader that samples the cubemap with the direction vector to obtain the closest depth (from the light's perspective) at that fragment
+
+- The hardest part of this technique is the depth cubemap generation
+
 #### Normal Mapping
 
 #### Parallax Mapping
