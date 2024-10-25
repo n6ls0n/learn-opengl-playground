@@ -1372,7 +1372,7 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - On the other hand, a perspective projection matrix does deform all vertices based on perspective which gives different results
 
-- Perspective projections make most sense for light sources that have actual location, unlike directional lights. Perspective projections are most often used with spotlights and points lights, while orthographic projections are used for directional lights
+- Perspective projections make most sense for light sources that have actual location, unlike directional lights. Perspective      projections are most often used with spotlights and points lights, while orthographic projections are used for directional lights
 
 - Another subtle difference with using a perspective projection matrix is that visualizing the depth buffer will often give an almost completely white result. This happens because with perspective projection, the depth is transformed to non-linear depth values with most of its noteceable range close to the near plane. To be able to properly view the depth values as we did with the orthographic projection, you first want to transform the non-linear depth values to linear
 
@@ -1454,7 +1454,33 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - Think of it as the local space of the normal map's vectors; they're all defined pointing in the positive z direction regardless of the final transformed direction. Using a specific matrix we can then transform normal vectors from this local tangent space to world or view coordinates, orienting them along the final mapped surface's direction
 
-- Let's say we have an incorrect normal mapped surface looking in the positive y direction. The normal map is defined in the tangent space, so one way to solve the problem is to calculate a matrix to transform normals from tangent space to a different space such that they're aligned with the surface's normal direction: the normal vectors are then all pointing roughly in the positive y direction. The great thing about tangent space is that we can calculate
+- Let's say we have an incorrect normal mapped surface looking in the positive y direction. The normal map is defined in the tangent space, so one way to solve the problem is to calculate a matrix to transform normals from tangent space to a different space such that they're aligned with the surface's normal direction: the normal vectors are then all pointing roughly in the positive y direction. The great thing about tangent space is that we can calculate this matrix for any type of suraface sot hat we can properly aling the tangent space's z direction to the surface's normal direction
+
+- Such a matric is called a TBN matrix where the letters depict a Tangent, Bitangent and Normal vector. These are the vectors we need to construct this matrix. To construct such a change-of-basis matrix, that transforms a tangent-space vector to a different coordinate space, we need three perpendicular vectors that are aligned along the surface of a normal map: an up, right and forward vector
+
+- The up vector is the surface's normal vector. The right and forward vector are the tangent and bitangent vector respectively
+
+- Calculating the tangent and bitangent vectors is not as straightforward as the normal vector. The direction of the normal map's tangent and bitangent vector align with the direction in which we define a surface texture's coordinates. We'll use this fact to calculate the tangent and bitangent vectors for each surface
+
+- Utilizing a triangle's two edges and it's texture coordiantes allows us to derive a formula that we can then use to calculate the tangent and bitangent vector
+
+- In effect, we can calculate tangents and bitangents from a triangle's vertices and its texture coordinates, since texture coordinates are in the same space as tangent vectors
+
+- After creating a TBN matrix, there are two ways to use it:
+  1. We take the TBN matrix that transforms any vector from tangent to world space, give it to the fragment shader and the transform the sample normal from tangent space to world space using the TBN matrix
+  2. We take the inverse of the TBN matrix that transforms any vector from world space to tangent space, and use this matrix to transform not the normal but the other relevant lighting variables to tangent space; the normal is then again in the same space as the other lighting variables
+
+- The second approach looks like more work and also requires matrix multiplication in the fragment shader, so why would we do it?
+
+- Well transforming vectors from world to tangent space has an added advantage in that we can transform all the relevant lighting vectors to tangent space in the vertex shader instead of the fragment shader
+
+- There is effectively no reason to transform a vector to tangent space in the fragment shader while it is necessary with the first approach as sample normal vectors are specific to each fragment shader run
+
+- So instead of sending the inverse of the TBN matrix to the fragment shader, we send a tangent-space light position, view position and vertex position to the fragment shader. This saves us from having to do matrix multiplications in the fragment shader. This is also the reason why this approach is often the preferred approach
+
+- Normal mapping boosts the detail of an object by an incredibale amount without too much extra cost
+
+- Normal mapping can also be used as a tool to replace high-vertex meshes with low-vertex meshes without losing too much detail
 
 #### Parallax Mapping
 
