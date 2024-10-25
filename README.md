@@ -1482,6 +1482,10 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - Normal mapping can also be used as a tool to replace high-vertex meshes with low-vertex meshes without losing too much detail
 
+- When tangent vectors are calculated on larger meshes tha share a considerable amount of vertices, the tangent vectors are generally averaged to give nice and smooth results. A problem with this approach is that the three TBN vectors could end up non-perpendicular which means the resulting TBN matrix would no longer be orthogonal. Normal mapping would only be slightly off with a non-orthogonal TBN matrix, but it's still something that we can improve
+
+- Using a mathematical trick called thr Gram-Schmidt process, we can re-orthogonalize the TBN vectors such that each vector is again perpendicular to the other vectors
+
 #### Parallax Mapping
 
 #### HDR
@@ -1547,3 +1551,9 @@ The std140 explicitly states the memory layout for each variable and for each va
   2. Another shadow mapping tutorial by ogldev - <http://ogldev.atspace.co.uk/www/tutorial23/tutorial23.html>
   3. Opengl-tutorial shadow mapping - <https://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/>
   4. Ogldev Multi-pass shadow mapping with point light - <https://ogldev.org/www/tutorial43/tutorial43.html>
+
+- Normal Mapping Links:
+  1. Normal Mapping tutorial by ogldev - <http://ogldev.atspace.co.uk/www/tutorial26/tutorial26.html>
+  2. TheBennyBox Normal Mapping Video Explanation - <https://www.youtube.com/watch?v=LIOPYmknj5Q>
+  3. TheBennyBox Normal Mapping Video Mathematics Explanation - <https://www.youtube.com/watch?v=4FaWLgsctqY>
+  4. Another normal mapping tutorial - <http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-13-normal-mapping/>
