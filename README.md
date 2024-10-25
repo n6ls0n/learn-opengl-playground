@@ -1440,7 +1440,21 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - Most normal maps will have a blue-ish tint. This is because the normals are all closely pointing outwarsds towards the positive z-axis (0,0,1): a blue-ish color. he deviations in color represent normal vectors that are slightly offset from the general positive z direction, giving a sense of depth to the texture
 
-- For example, you can see that at the top of each brick the color tends to be more greenish, which make sense as the top side of a brick would have normals pointing more in the positive y direction which happens to be the color green
+- For example, the top of each brick the color tends to be more greenish, which make sense as the top side of a brick would have normals pointing more in the positive y direction which happens to be the color
+
+- There is one issue that greatly limits the use of normal maps. If the normal map and the and the surface normal vector don't point in the same direction, this can lead to incorrect lighting
+
+- One solution for this issue would be to define a normal map for each possible direction of the surface; in the case of a cube this would lead to 6 normal maps. However, with advanced meshes that can have more than hundreds of possible surface directions this becomes an infeasible approach
+
+- A different solution exists that does all the lighting in a different coordinate space: a coordinate space where the normal map vectors always point towards the positive z direction; all other lighting vectors are then transformed relative to this positive z direction. This way we can always use the same normal map, regardless of orientation. This coordinate space is called tangent space
+
+- Normal vectors in a normal map are expressed in tangent space where normal always point roughly in the positive z direction
+
+- Tangent space is a space that's local to the surface of a triangle: the normals are relative to the local reference frames of the individual triangles
+
+- Think of it as the local space of the normal map's vectors; they're all defined pointing in the positive z direction regardless of the final transformed direction. Using a specific matrix we can then transform normal vectors from this local tangent space to world or view coordinates, orienting them along the final mapped surface's direction
+
+- Let's say we have an incorrect normal mapped surface looking in the positive y direction. The normal map is defined in the tangent space, so one way to solve the problem is to calculate a matrix to transform normals from tangent space to a different space such that they're aligned with the surface's normal direction: the normal vectors are then all pointing roughly in the positive y direction. The great thing about tangent space is that we can calculate
 
 #### Parallax Mapping
 
@@ -1506,4 +1520,4 @@ The std140 explicitly states the memory layout for each variable and for each va
   1. Microsoft article with lots of techniques to improve the quality of shadow maps - <https://learn.microsoft.com/en-us/windows/win32/dxtecharts/common-techniques-to-improve-shadow-depth-maps?redirectedfrom=MSDN>
   2. Another shadow mapping tutorial by ogldev - <http://ogldev.atspace.co.uk/www/tutorial23/tutorial23.html>
   3. Opengl-tutorial shadow mapping - <https://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/>
-  4. Ogldev Multi-pass shadow mapping wiht point light - <https://ogldev.org/www/tutorial43/tutorial43.html>
+  4. Ogldev Multi-pass shadow mapping with point light - <https://ogldev.org/www/tutorial43/tutorial43.html>
