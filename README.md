@@ -1532,7 +1532,21 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - The reason that it doesn't work properly at times is that it's just a crude approximation of displacement mapping. There are some extra tricks however that still allows us to get almost perfect results with steep height changes, even when looking at an angle. For instance, what if we instead of one sample take multiple samples
 
+- Steep parallax Mapping is an extension on top of Parallax mapping in that it uses the same principles but instead of 1 sample it takes multiple samples. This gives much better results, even with steep height changes, as the accuracy of the technique is improved by the number of samples
 
+- The general idea of Steep Parallax Mapping is that it divides the total depth range into multiple layers of the same height/depth. For each of these layers we sample the depthmap, shifting the texture coordinates until we find a sampled depth value that is less than the depth value of the current layer
+
+- We cna improve the current algorithm a bit by exploiting one of Parallax Mapping's properties which is that when looking straight onto a surface there isn't much texture displacement going on while there is a lot of displacement when looking at a surface from an angle. By taking less samples when looking straight at a surface and more samples when looking at an angle we only sample the necessary amount
+
+- Steep Parallax Mapping comes with its own problems though. Because the technique is baed ona finite number of samples, we get aliasing effect and the clear distinction between layers can easily be spotted
+
+- We can reduce the issue by taking a larger number of samples but this quickly become too heavy a burden on performance. There are several approaches that aim to fix this issue by not taking the first first position that's belwow the displaced surface but by interpolating between the position's two closest depth layers to find a much closer match
+
+- Two more popular of these approaches are called Relief Parallax Mapping and Parallax Occlusion Mapping of which the Relief Parallax Mapping gives the most accurate results, but is also more performance heavy compared to Parallax Occlusion. Because Parallax Occlusion Mapping gives almost the same results as Relief Parallax Mapping and is also more effcient, it is often the preferred approach
+
+- Parallax Occlusion Mapping is based on the same principles as Steep Parallax Mapping but instead of taking the texture coordinates of the first depth layer after a collision, we're going to interpolate between the depth layer after and before the collision
+
+- We base the weight of the linear interpolation on how far the surface's height is from the depth layer's value of both layers
 
 #### HDR
 
@@ -1603,3 +1617,5 @@ The std140 explicitly states the memory layout for each variable and for each va
   2. TheBennyBox Normal Mapping Video Explanation - <https://www.youtube.com/watch?v=LIOPYmknj5Q>
   3. TheBennyBox Normal Mapping Video Mathematics Explanation - <https://www.youtube.com/watch?v=4FaWLgsctqY>
   4. Another normal mapping tutorial - <http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-13-normal-mapping/>
+
+- Video Tutorial of how Parallax Mapping Displacement works - <https://www.youtube.com/watch?v=xvOT62L-fQI>
