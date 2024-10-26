@@ -1508,7 +1508,31 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - The idea behind parallax mapping is to alter the texture coordinates in such a way that it looks like a fragment's surface is higher or lower than it actually is, all based on the view direction and a heightmap
 
-- 
+- This little trick gives good results most of the time but it is still a really crude approximation. When heights change rapidly over a surface the results tend to look unrealistic
+
+- Another issue with parallax mapping is that it's difficyult to figure out which coordinates to retrieve from the when the surface is arbitrarily rotated in some way. We'd rather do this in a different coordinate space where the x and y components of the vecotr used always align with the texture's surface i.e. we would like to do this in tangent space
+
+- By transforming the fragment-to-view direction vector to tangent space, the transformed vector will have its x and y component aligned to the surface's tangent and bitangent vectors
+
+- As the tangent and bitangent vectors are pointing in the same direction as the surface's texture coordinates, we can take the x and y components of the utilized vector as the texture coordinate offset regardless of the surface's orientation
+
+- Because parallax mapping gives the illusion of displacing a surface, the illusion breaks when the lighting doesn't match. As normal maps are often generated from heightmaps, using a normal map together with the heightmap makes sure the lighting is in place with the displacement
+
+- Displacement maps are the inverse of heightmaps
+
+- With parallax mapping it makes more sense to use the inverse of the heightmap as it's easier to fake depth than height on flat surfaces
+
+- Assuming we perform parallax mapping on a plane, we may still see some weird border artifacts at the edge of the parallax mapped plane. This happens because at the edges of the plane, the displaced texture coordinates can oversample outside the range [0,1]. This gives unrealistic results based on the texture's wrapping mode(s)\
+
+- A cool trick to solve this issue is to discard the fragment whenver it samples outside the default texture coordinates range
+
+- This trick doesn't work on all types of surfaces but when applied to a plane, it gives great results
+
+- In general, parallax mapping looks great and is quite fast as well as we only need a single extra texture smaple for parallax mapping to work. It does come with a few issues though as it sort of breaks down when looking at it from an angle (similar to normal mapping) and gives incorrect results with steep height changes
+
+- The reason that it doesn't work properly at times is that it's just a crude approximation of displacement mapping. There are some extra tricks however that still allows us to get almost perfect results with steep height changes, even when looking at an angle. For instance, what if we instead of one sample take multiple samples
+
+
 
 #### HDR
 
