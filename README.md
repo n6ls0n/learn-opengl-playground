@@ -1488,6 +1488,28 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 #### Parallax Mapping
 
+- Parallax mapping is a technique similar to normal mapping but based on different principles. Just like normal mapping, it is a technique that significantly boosts a textured surface's detail and gives it a sense of depth
+
+- While it is also an illusion, parallax mapping is a lot better in conveyiong a sense of depth and together with normal mapping gives incredibly realistic results
+
+- Parallax mapping is closely related to the family of displacement mapping techinques that displace or offset vertices based on geometrical information stored inside a texture. One way to do this is to take a plane with roughly 1000 vertices and displace each of these vertices base dona value in a texture that tells us the height of the plane of that specific area
+
+- Such a texture that contains height values per texel is called a height map
+
+- When spanned over a plane, eahc vertex is displaced based on the sampled height value in the height map, transforming a flat plane to a rough bumpy surface based on a material's geometric properties
+
+- A problem with displacing vertices this way is that a plane needs to contain a huge amount of triangles to get a realistic displacement, otherwise the displacement looks too blocky
+
+- As each flat surface may then require over 1000 vertices this quickly becomes computationally infeasible
+
+- What if we could somehow achieve similar realism without the need of extra vertices?
+
+- This can be done with parallax mapping
+
+- The idea behind parallax mapping is to alter the texture coordinates in such a way that it looks like a fragment's surface is higher or lower than it actually is, all based on the view direction and a heightmap
+
+- 
+
 #### HDR
 
 #### Bloom
