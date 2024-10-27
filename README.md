@@ -1580,9 +1580,24 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - As non-HDR monitors only display colors in the range between 0.0 and 1.0, we do need to transform the currently high dynamic range of color values back to the monitor's range. Simply re-transforming colors back wiht a simple average wouldn't do us much good as brighter areas then become a lot more dominant. What we can do is use different equations and/or curves to transform the HDR values back to LDR that give us complete control over the scene's brightness. This is the process earlier denoted as tone mapping and the final step of HDR rendering
 
-- 
+- To implement high dynamic range rendering, we need some way to prevent color values getting clamped after each fragment shader rub. When framebuffers use a normalized fixed-point color format like GL_RGB as their color buffer's internal format, OpenGL automatically clamps the values between 0.0 and 1.0 befores storing them in the framebuffer
 
--
+- THis operation holds for most types of framebuffer formats except for floating point formats
+
+- When the internal format of a framebuffer's color buffer is specified as GL_RGB16F, GL_RGBA16F, GL_RGB32F or GL_RGBA32F the frambuffer is known as a floating point framebuffer that can store floating point values outside the default range of [0.0,1.0]. This is perfect for rendering HDR
+
+- To create a floating point framebuffer the only thing we need to change is its color buffer's internal format
+
+- One of the more simple tone mapping algorithms is Reinhard tone mapping that involves dividing the entire HDR color values to LDR color values. The Reinhard tone mapping algorithm evenly balances out all brightness values onto LDR
+
+- Note that it is possible to directly tone map at the end of our lighting shader, not needing any floating point framebuffer at all. However, as scenes get more complex you'll frequently find the need to store intermediate HDR results as floating point buffers so it is a good exercise to using floating point framebuffers
+
+- Another interesting use of tone mapping is to allow the use of an exposure parameter. Recall that HDR images contain a lot of details visible at different exposure levels. If we have a scene that features a day and night cycle it makes sense to use a lower exposure at daylight and a hgiher exposure at night time, smiliar to how the human eye adapts. Wiht such an exposure parameter it allwos us to configure the lighting parameters that work both at day and at night under different lighting conditions as we only have to change the exposure parameter
+
+- Some tone mapping algorithms favor certain colors/intensities above others and some algorithms display both the low and high exposure colors at the same time to create more colorful and detailed images. There is also a collection of techniques known as automatic exposure adjustment or eye adaption techniques that determine the brightness of the scene in the previous frame and slowly adapt the exposure parameter such that the scene gets brighter in dark areas and vice versa
+
+- The real benefit of HDR rendering reallys shows itself in large and complex scenes with heavy lighting algorithms
+
 #### Bloom
 
 #### Deferred Shading
