@@ -1550,6 +1550,39 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 #### HDR
 
+- Brightness and color values by default are clamped between 0.0 and 1.0 when stored in a framebuffer
+
+- This statement caused us to always specify light and color values somewhere in this range, trying to make them fit into the scene
+
+- This works ok and gives decent results but what happens if we walk in a really bright area with multiple bright light sources that as a total sum exceed 1.0
+
+- The answer is that all fragments that have a brightness or color sum over 1.0 get clamped to 1.0, which isn't pretty to look at
+
+- In such cases due to a large number of fragments' color values getting clamped to 1.0, each of the bright fragments have the same exact white color value in large regions, losing a significant amount of detail and givin   g it a false look
+
+- A solution to this problem would be to reduce the strength of the light sources and ensure no area of fragments in your scene ends up brighter than 1.0; this is not a good solution as this forces you to use unrealistic lighting parameters. A better approach is to allow color values to temporarily exceed 1.0 and transform them back to the original range of 0.0 to 1.0 as a final step without losing any detail
+
+- Monitors (non-HDR) are limited to display colors in the range of 0.0 to 1.0 but there is not such limitation in lighting equations. By allowing fragment colors to exceed 1.0 we have a much higher range of color values available to work in known as high dynamic range (HDR). With HDR, bright things can be reallty bright, dark things can be really dark and details can be seen in both
+
+- HDR was originally only used for photogtaphy where a photographer takes multiple pictures of the same scene with varying exposure levels, capturing a large range of color values. Combining these forms a HDR image where a large range of details are visible based on the combined exposure levels or a specific exposure it is viewed with
+
+- This high/low exposure phenonenom is also how the human eye works and is the basis of high dynamic range rendering
+
+- When there is little light, the human eye adapts itself so the darker parts become more visible and similarly for bright areas. It's like the human eye has an automatic exposure slider based on the scene's brightness
+
+- HDR rendering works in a similar way. We allow a much larger range of color values to render to, collecting a large range of dark and bright detials of a scene and at the edn we transform all the HDR values back to the low dynamic range (LDR) of [0.0,1.0]
+
+- This process of converting HDR values to LDR values is called tone mapping and a large collection of tone mapping algorithms exist that aim to preserve most HDR details during the conversion process. These tone mapping algorithms often involve an exposure parameter that selectively favors dark or bright regions
+
+- When it comes to real-time rendering, high dynamic range allows us to not only exceed the LDr range of [0.0, 1.0] and preserve more detail, but also gives us the ability to specify a light source's intensity by their real intensities
+
+- For instance, the sun has a much hihgher intensity rhan something like a flashlight so why not configure the sun as such (e.g. a diffuse brightness of 100). This allows us to more properly configure a scene's lighting with more realistic lighting, something that wouldn't be possible with LDR rendering as they'd then directly get clamped to 1.0
+
+- As non-HDR monitors only display colors in the range between 0.0 and 1.0, we do need to transform the currently high dynamic range of color values back to the monitor's range. Simply re-transforming colors back wiht a simple average wouldn't do us much good as brighter areas then become a lot more dominant. What we can do is use different equations and/or curves to transform the HDR values back to LDR that give us complete control over the scene's brightness. This is the process earlier denoted as tone mapping and the final step of HDR rendering
+
+- 
+
+-
 #### Bloom
 
 #### Deferred Shading
