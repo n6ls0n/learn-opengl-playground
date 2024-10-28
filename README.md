@@ -1600,6 +1600,38 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 #### Bloom
 
+- Bright light sources and brightly lit regions are often difficult to convey to the viewer as the intensity range of a monitor is limited. One way to distinguish bright light sources on a monitor is by making them glow; the light then bleeds around the light source. This effectively gives the viewer the illusion these light sources or bright regions are intensely bright
+
+- This light bleeding or glow effect is achieved with a post-processing effect called Bloom. Bloom gives all brightly lit regions of a scene a glow-like effect
+
+- Bloom gives noticeable visual cues about the brightness of the objects. When done in a subtle fashion, it significantly boosts the lighting of your scene and allows for a large range of dramatic effects
+
+- Bloom works best in combination with HDR rendering. A common misconception is that HDR is the same as Bloom as many people use the terms interchangeably. They are however completely different techniques used for different purposes
+
+- It is possible to implement Bloom with default 8-bit precision framebuffers, just as it is possible to use HDR without the Bloom effect. It is simply that HDR makes Bloom more effective to implement
+
+- To implement Bloom, we render a lit scene as usual and extract both the scene's HDR color buffer and an image of the scene with only its bright regions visible. This extracted brightness image is then blurred and the result added on top of the original HDR scene image
+
+- A simple way to blur the image would be to take the average of all surrounding pixels of an image. While it does give us an easy blur, It doesn't give the best results
+
+- A gaussian blur is based on the Gaussian curve which is commonly described as a bell-shaped curve giving high values close to its center that gradually wear off over distance
+
+- As the Gaussian curve has a larger area close to its center, using its values as weights to blur an image give more natural results as samples close by have a higher precedence. If we for instance sample a 32x32 box around a fragment, we use progressively smaller weights the larger the distance to the fragment; this gives a better and more realistic blur which is known as Gaussian Blur
+
+- To implement a Gaussian blur filter, we'd need a two-dimensional box of weights that we can obtain from a 2 dimensional Gaussian curve equation. The problem with this approach is that it quickly becomes heavy on performance. Take a blur kernel of 32 by 32 for example, this would require us to sample a texture a total of 1024 times for each fragment
+
+- Luckily, the gaussian equation has a very neat property that allows us to seperate the two-dimensional equation into two smaller one-dimensional equations: one that describes the horizontal weights and the other that describes the vertical weights
+
+- We'd then first do a horizontal blur with the horizontal weights on the scene texture and then on the resulting texture do a vertical blur
+
+- Due to this property, the results are exactly the same but this time saving us an incredible amount of performance as we'd now only have to do 32 + 32 samples compared to 1024. This is known as two-pass Gaussian Blur
+
+- This does mean we need to blur an image at least two times and this works best with the use of framebuffer objects
+
+- Specifically for the two-pass Gaussian blur we're going to implement ping-pong framebuffers. That is a pair of framebuffers where we render and swap, a given number of times, the other framebuffer's color buffer into the current framebuffer's color buffer with an alternating shader effect
+
+- We basically continuosly switch the framebuffer to render to and the texture to draw with. This allows us to first blur the scene's texture in the first framebuffer then blur the first framebuffer's color buffer into the second framebuffer, and then the second framebuffer's color buffer into the first and so on
+
 #### Deferred Shading
 
 #### SSAO
@@ -1667,3 +1699,7 @@ The std140 explicitly states the memory layout for each variable and for each va
   4. Another normal mapping tutorial - <http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-13-normal-mapping/>
 
 - Video Tutorial of how Parallax Mapping Displacement works - <https://www.youtube.com/watch?v=xvOT62L-fQI>
+
+- Efficient Gaussian blur with linear sampling - <https://www.rastergrid.com/blog/2010/09/efficient-gaussian-blur-with-linear-sampling/>
+
+- How to do good bloom for HDR rendering - <https://kalogirou.net/2006/05/20/how-to-do-good-bloom-for-hdr-rendering/>
