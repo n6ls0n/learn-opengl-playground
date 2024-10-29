@@ -1690,6 +1690,41 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - To overcome these disadvantages (especially blending) we often split the renderer into two parts: one deferred rendering part and the other a forward rendering part specifically meant for blending or special shader effects not suited for a deferred rendering pipelin
 
+- What deferred rendering is often praised for is its ability to render an enormous amount of light sources without a heavy cost on performance
+
+- Deferred rendering by itself doesn't allow for a very large amount of light sources as we'd still have to calculate each fragment's lighting component for each of the scene's light sources
+
+- What makes a large amount of light sources possible is a very neat optimization we can apply to the deferred rendering pipeline called light volumes
+
+- Normally when we render a fragment in a large lit scene, we'd calculate the contribution of each light source in a scene, regardless of their distance from the fragment. A large portion of these light sources will never reach the fragment so wht waster all these lighting computations
+
+- The idea behind light volumes is to calculate the radius or volume of a light source i.e. the area where its light is able to reach fragments. As most light sources use some form of attenuation, we can use that to calculate the maximum distance or radius this light is able to reach, We then only do the expensive lighting calculations is a fragment is inside one or more of these light volumes. This can save us a considerable amount of computation as we now only calculate lighting where it's necessary
+
+- The trick to this approach is mostly figuring out the size or radius of the light volume of a light source
+
+- To obtain a light's volume radius we have to solve the attenuation equation for when its light contribution becomes 0.0 ( or in practive very close such as 5/256)
+
+- A naive utilization of light volume's would lead to code that contained loops and branches. However the reality if the GPUs and GLSL are pretty bad at optimizing loops and branches
+
+- The reason for this is that shader execution on the GPU is highly parallel and most architectures have a requirement that for large collection of threads they need to run the exact same shader code for it to be effcient. This often means that a shader is run that executes all branches of an if stateme4nt to ensure the shader runs are the same for that group of threads maqking our previous radius check optimization completely useless as we'd still be calculation lighting for all light sources
+
+- The appropriate approach to using light volumes is to render actual spheres, scaled by the light volume radius. The centers of these spheres are positioned at the light source's position and as it is scaled by the light volume radius the sphere exactly encompasses the light's visible volum
+
+- This is where the trick comes in: we use the deferred lighting shader for rendering the spheres. As a rendered sphere produces fragment shader invocations that exactly match the pixels the light source affects, we only render the relevant pixels and skip all other pixels
+
+- This done for each light source in the scene and the resulting fragments are additively blended together. This effectively reduces the computations from nr_objects * nr_lights to nr_objects + nr_lights which makes it incredibly efficient in scenes with large number of lights
+
+- There is still an issue with the approach: face culling should be enabled (otherwise we'd render a light's effect twice) and when it is enabled the user may enter a light source's volume after which the volume isn't rendered anymore (due to back-face culling), removing the light source's influence; we can solve that by only rendering the sphere's back face
+
+- Render light volumes does take its toll on performance and while it is generally much faster than normal deferred shading for a rendering a large number of lights, there is still more that can be optimized
+
+- Two other popular (and more efficient) extensions on top of deferred shading exist called deferred lighting and tile-based deferred shading. These are even more efficient for rendering large amounts of light and also allow for relatively efficient MSAA
+
+- When you have a small scene and not too many lights, deferred rendering is not necessarily faster and sometimes even slower as the overhead then outweighs the benefits of deferred rendering. In more complex scenes, deferred rendering quickly becomes a significant optimization; especially more advanced optimization extensions. In addition, some render effect, especially post-processing effects become chaper on a deferred render pipeline as a lot of scene inputs are already available from the g-buffer
+
+- All effects that can be accomplished with forward rendering can also be implemented in a deferred rendering context; this often only requires a small translation step. For instance, if we want to use normal mapping in a deferred renderer, we'd change the geometry pass shaders to output a world-space normal extracted from a normal map using a TBN matrix instead of a surface normal; the lighting calculations in the lighting pass don't need to change at all
+
+- If you want parallax mapping to work, you'd want to first displace the texture coordinates in the geometry pass before sampling an object's diffuse, specular and normal textures
 
 #### SSAO
 
@@ -1760,3 +1795,9 @@ The std140 explicitly states the memory layout for each variable and for each va
 - Efficient Gaussian blur with linear sampling - <https://www.rastergrid.com/blog/2010/09/efficient-gaussian-blur-with-linear-sampling/>
 
 - How to do good bloom for HDR rendering - <https://kalogirou.net/2006/05/20/how-to-do-good-bloom-for-hdr-rendering/>
+
+- OLDDev Deferred Shading Tutorial - <https://ogldev.org/www/tutorial35/tutorial35.html>
+
+- Forward vs Deferred vs Forward+ Rendering with DirectX 11 (HLSL) - <https://www.3dgep.com/forward-plus/>
+
+  - Github repo for GLSL implementation of the code above - <https://github.com/bcrusco/Forward-Plus-Renderer?tab=readme-ov-file>
