@@ -1668,6 +1668,29 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - By using multiple rendered targets we can even do all of this in a single render pass
 
+- The G-buffer is the collective term of all textures used to store ligiting relevant data for the final lighting pass
+
+- All the data we need to light a fragment with forward rendering is as follows:
+  1. A 3D world space position vecotor to calucate the interpolated fragment position variable used for the lightDir and viewDir
+  2. An RGB diffuese color vector known as an albedo
+  3. A 3D normal vecotr for determining a surface's slope
+  4. A specular intensity float
+  5. All light source positions and color vectors
+  6. The player or viewer's position vector
+
+- With these per-fragment variables at our disposal, we are able to calculate the (Blinn) Phong lighting we're accustomed to. The light source positions and colors and the player's view position can be configured using uniform variable but the other variables are all fragment specific
+
+- If we can somehow pass the exact same data to the final deferred lighting pass we can calculate the same lighting effects, even though we're rendering fragments on a 2D quad
+
+- There is no limit in OpenGL to what we can store in a texture so it makes sense to store all per-fragment data in one or multiple screen-filled textures of the G-buffer and use these later in the lighting pass
+
+- As the G-buffer textures will have the same size as the lighting pass's 2D quad, we get the exact same fragment data we'd had in a forward rendering setting but this time in the lighting pass; there is a one on one mapping
+
+- One of the disadvantages of deferred shading is that it is not possible to do blending as all values in the G-buffer are from single fragments and blending operates on the combination of multiple fragments. Another disadvantage is that deferred shading forces you to use the same lighting algorithm for most of your scenes lighting; you can somehow alleviate this a bit by including more material-specfic data in the G-buffer
+
+- To overcome these disadvantages (especially blending) we often split the renderer into two parts: one deferred rendering part and the other a forward rendering part specifically meant for blending or special shader effects not suited for a deferred rendering pipelin
+
+
 #### SSAO
 
 ### PBR
