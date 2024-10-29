@@ -1095,11 +1095,11 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - The rasterizer takes all the vertices belonging to a single primitive and transforms this to a set of fragmnets. Vertex coordinates can theoretically have any coordinate but fragments cant since they are bound by the resolution of the screen
 
-- There will almost never be a one-on-one mapping between vertex coordiantes and fragments, so the rasterizer has to determine in some way what fragment/screen-coordinate each specific vertex will end up at
+- There will almost never be a one-on-one mapping between vertex coordinates and fragments, so the rasterizer has to determine in some way what fragment/screen-coordinate each specific vertex will end up at
 
 - The way MSAA works under the hood is not by using a single sample point to determine the coverage of a primitive defined by a group of vertices but instead using multiple sample points
 
-- Instead of a single point at the center of each pixel, you place 4 subsamples in a general pattern and use thos to determine pixel coverage
+- Instead of a single point at the center of each pixel, you place 4 subsamples in a general pattern and use those to determine pixel coverage
 
 - Assuming that 2 subsamples were covered and thus would run the fragment shader, the next step is to determine a color for this specific pixel. Our initial guess would be that we run the fragment shader for each covered subsample and later average the colors of eahc subsample per pixel
 
@@ -1107,7 +1107,7 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - How MSAA really works is that the fragment shader is only run once per pixel (for eahc primitive) regardless os how many subsamples are covered (by a triangle). The fragment shader runs with the vertex data interpolated to the center of the pixel. MSAA then uses a larger depth/stencil buffer to determine subsample coverage. the number of subsamples covered determines how much pixel color contributes to the framebuffer
 
-- From the example, since only 2 of the 4 samples were convered, half of the triangle's color is mixed with the framebuffer color
+- From the example, since only 2 of the 4 samples were covered, half of the triangle's color is mixed with the framebuffer color
 
 - The result is a higher resolution buffer (with higher resolution depth/stencil) where all the primitive edges now produce a smoother pattern
 
@@ -1633,6 +1633,40 @@ The std140 explicitly states the memory layout for each variable and for each va
 - We basically continuosly switch the framebuffer to render to and the texture to draw with. This allows us to first blur the scene's texture in the first framebuffer then blur the first framebuffer's color buffer into the second framebuffer, and then the second framebuffer's color buffer into the first and so on
 
 #### Deferred Shading
+
+- The way we've done lighting so far is called forward rendering or forward shading. A straightforward approach where we render an object and light it according to all light sources in a scene
+
+- We do this for individually for every object scene. While it is quite easy to understadn and implement it is also quite heavy on performance as each rendered object has to iterate over each light source for every rendered fragment
+
+- Forward rendering also tends to wast a lot of fragment shader runs in scenes with a high depth complexity (multiple objects cover the same screen pixel) as fragment shader outputs are overwritten
+
+- Deferred shading or deferred rendering aims to overcome these issues by drastically changing the way we render objects. This gives us several new options to significantly optimize scenes with large number of lights, allwing us to render hundreds (or even) thousands of lights with an acceptable frame rate
+
+- It is based on the idea that we defer or postpone most of the heavy rendering (like lighting) to a later stage. Deferred shading consists of two passes: in the first pass, called the geometry pass, we render the scene once and retrieve all kinds of geometrical information from the objects that we store in a collection of textures called the G-buffer; think of position vectors, color vectors, normal vectors and/or specular values
+
+- The geometric information of a scene stored in the G-buffer is then later used for more complex lighting calculations
+
+- We use the textures from the G-buffer in a second pass called the lighting pass where we render a screen-filled quad and calculate the scene's lighting for each fragment using the geometrical information stored in the G-buffer; pixel by pixel, we iterate over the G-buffer
+
+- Instead of taking each object all the way from the vertex shader to the fragment shader, we decouple its advanced fragment process to a later stage
+
+- The lighting calculations are exactly the same but this time we take all required input variables from the corresponding G-buffer textures instead of the vertex shader (plus some uniform variables)
+
+- A major advantage of this approach is that whatever fragment ends up in the G-buffer is the actual fragment information that ends up as a screen pixel
+
+- The depth test already concluded this fragment to be the last and top-most fragment. This ensures that for each pixel we process in the lighting pass, we only calculate lighting once
+
+- Furthermore, deferred rendering opens up the possibility for further optimizations that allow us to render a much larger amount of light sources compared to forward rendering
+
+- It also comes with some disadvantages though as the G-buffer requires us to store a relatively large amount of scene data in its texture color buffers
+
+- This eats memory, especially since scene data like position vectors require a high precision
+
+- Another disadvantage is that it doesn't support blending ( as we only have information of the top-most fragment) and MSAA no longer works
+
+- Filling the G-buffer in the geometry pass isn't too expensive as we directly store object information liek position, color or normals into a framebuffer with a small or zero amount of processing
+
+- By using multiple rendered targets we can even do all of this in a single render pass
 
 #### SSAO
 
