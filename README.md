@@ -1728,6 +1728,38 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 #### SSAO
 
+- Ambient lighting is a fixed constant light we add to the overall lighting of a scene to simulate the scattering of light
+
+- In reality, light scatters in all kinds of directions with varying intensities so the indirectly lit parts of a scene should also have varying intensities
+
+- One type of indirect lighting approximation is called ambient occlusion that tries to approximate indirect lighting by darkening creases, holes and surfaces that are close to each other
+
+- These areas are largely occluded by surrounding geometry and thus light rays have fewer places to escape to, hence the areas appear darker
+
+- Ambient occlusion techinques are expensive as they have to take surrounding geometry into account. One could shoot a large number of rays for each point in space to determine its amount of occlusion but that quickly becomes computationally infeasible for real time solutions
+
+- In 2007, Cytrek published a technique called screen-space ambient occlusion (SSAO) for use in their title Crysis. The technique uses a scene's depth buffer in screen-space to determine the amount of occlusion instead of real geometrical data
+
+- This approach is incredibly fast compared to real ambient occlusion and gives plausible results making it the de-facto standard for approximating real-time ambient occlusion
+
+- The basics behind screen-space ambient occlusion are simple; for each fragment on a screen-filled quad we calculate an occlusion factor based on the fragment's surrounding depth values.
+
+- The occlusion factor is then used to reduce or nullify the fragment's ambient lighting component
+
+- The occlusion factor is obtained by taking multiple depth samples in a sphere sample kernel surrounding the fragment's position and comparing each of the samples with the current fragment's depth value. The number of samples that have a higher depth value than the fragment's depth represents the occlusion factor
+
+- It's clear that the quality and precision of the effect directly relates to the number of surrounding samples we take. If the sample count it too low, the precision drastically reduces and we get an artifact called banding; if it is too high, we lose performance
+
+- We can reduce the amount of samples we have to test by introducing some randomness into the sample kernel
+
+- By randomly rotating the sample kernel eahc fragment we can get high quality results with a much smaller number of samples. This does come at a price as the randomness introduces a noticeable noise pattern that we'll have to fix by blurring the results
+
+- The orignal method developed by Crytek ghad a certian visual style. Since the sample kernel used was a sphere, it caused flat walls to look gray as halkf the kernel samples end up being in the surrounding geometry
+
+- A more appropriate sample kernel is a hemisphere oriented along the surface's normal vector
+
+- By sampling aorund this normal-oriented hemisphere, we do not consider the fragment's underlying geometry to be a contribution to the occlusion factor. This removes the gray feel of ambient occlusion and generally produces more realistic results
+
 ### PBR
 
 #### Theory
@@ -1801,3 +1833,5 @@ The std140 explicitly states the memory layout for each variable and for each va
 - Forward vs Deferred vs Forward+ Rendering with DirectX 11 (HLSL) - <https://www.3dgep.com/forward-plus/>
 
   - Github repo for GLSL implementation of the code above - <https://github.com/bcrusco/Forward-Plus-Renderer?tab=readme-ov-file>
+
+  - Jon Chapman graphics blog - <https://john-chapman-graphics.blogspot.com/>
