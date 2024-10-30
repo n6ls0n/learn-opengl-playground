@@ -1760,6 +1760,35 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - By sampling aorund this normal-oriented hemisphere, we do not consider the fragment's underlying geometry to be a contribution to the occlusion factor. This removes the gray feel of ambient occlusion and generally produces more realistic results
 
+- SSAO requires geometrical info as we need some way to determine the occlusion factor of a fragment. For each fragement, we're going to need the following data;
+  1. A per-fragment position vector
+  2. A per-fragment normal vector
+  3. A per-fragment albedo color
+  4. A sample kernel
+  5. A per-fragemnt random rotation vector used to rotate the sample kernel
+
+- Using a per-fragment view-space position, we can orient a sample hemisphere kernel around the fragment's view-space surface normal and use this kernel to sample the position buffer texture at varying offsets. For each per-fragment kernel sample, we compare its depth in the position buffer to determine the amount of occlusion.
+
+- The resulting occlusion factor is then used to limit the final ambient lighting component. By also including a per-fragment rotation vector we can significantly reduce the number of samples we'll need to take
+
+- As SSAO is a screen-space technique, we calculate its effect on each fragment on a screen-filled 2D quad. This does mean we have no geometrical information of the scene
+
+- What we could do is render the geometrical per-fragment data into screen-space textures that we then later sent to the SSAO shader so we have access to the per-fragment geometrical data. This ends up looking a lot like the deferred renderer's g-buffer setup. For that reason, SSAO is perfectly suited in combination with deferred rendering as we already have the position and normal vectors in G-buffer
+
+- Since SSAO is a screen-space technique where occlusion is calculated from the visible view, it makes sense to implement the algorithm in view-space
+
+- Recall that we need to generate a number of samples oriented along the normal of a surface.We would need to generate samples that form a hemisphere as previously stated
+
+- As it is difficult nor plausible to generate a sample kernel for each surface normal direction, we're going to generate a sample kernel in tangent space, with the normal vector pointing in the +ve z-direction
+
+- Each of the kernel samples will be used to offset the view-space fragment position to smaple surrounding geometry
+
+- We do need quite a lot of samples in view-space in order to get realistic results, which may be too heavy on performance. However, if we can introduce some semi-random rotation or noise per-frgament basis, we can significantly reduce the number od f samples required
+
+- By introducing some randomness onto the sample kernels, we largely reduce the number of samples necessary to get good results. We could create a random rotation vector for each fragment of a scene, but that quickly eats up memory
+
+- It makes more sense to create a small texture of random rotation vectors that we tile over the screen
+
 ### PBR
 
 #### Theory
@@ -1834,4 +1863,15 @@ The std140 explicitly states the memory layout for each variable and for each va
 
   - Github repo for GLSL implementation of the code above - <https://github.com/bcrusco/Forward-Plus-Renderer?tab=readme-ov-file>
 
-  - Jon Chapman graphics blog - <https://john-chapman-graphics.blogspot.com/>
+- Jon Chapman graphics blog - <https://john-chapman-graphics.blogspot.com/>
+
+- SSAO Articles:
+  - Jon Chapman SSAO Tutorial - <https://john-chapman-graphics.blogspot.com/2013/01/ssao-tutorial.html>
+
+  - Reconstructing position from depth
+
+  - OGLDev tutorial on SSAO - <https://ogldev.org/www/tutorial46/tutorial46.html>
+
+  - Another SSAO article - <https://mtnphil.wordpress.com/2013/06/26/know-your-ssao-artifacts/>
+
+  - Getting position from depth - <https://mynameismjp.wordpress.com/2010/09/05/position-from-depth-3/>
