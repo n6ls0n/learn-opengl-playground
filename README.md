@@ -71,7 +71,8 @@ Below are some notes I took, feel free to remove them.
 - [PBR](#pbr)
   - [Theory](#theory)
   - [Lighting-PBR](#lighting-pbr)
-  - [IBL](#ibl)
+  - [IBL_Diffuse Irradiance](#ibl_diffuse-irradiance)
+  - [IBL_Specular IBL](#ibl_specular-ibl)
 - [Helpful Links](#helpful-links)
 
 ### Getting Started
@@ -1793,9 +1794,36 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 #### Theory
 
+- Physically Based Rendering (PBR) is a collection of render techniques that are more or less based on the same underlying thoery that more closely matches that of the physical world
+
+- As PBR aims to mimic light in a physically plausible way, it generally looks more realistic compared to out original lighting algorithms like Phong and Blinn-Phong
+
+- Not only does it look better, as it closely approximates actual physics, we (and especially the artists) can author surface materials based on physical parameters without having to resort to cheap hacks and tweaks to make the lighting looks right
+
+- One of the bigger advantages of authoring materials based on physical parameters is that these materials will look correct regardless of lighting conditions; something not true in non-PBR pipelines
+
+- PBR is still nonetheless an approximation of reality which is why it's not called physical shading but rather physically based shading
+
+- For a PBR lighting model to be considered physically based, it has to satisy the following 3 conditions:
+  1. Be based on the microfacet surface model
+  2. Be energy conserving
+  3. Use a physically based BRDF
+
+- All PBR techniques are based on the theory of micro facets
+
+- The theory describes that any surfacea at a microscopic scale can be described by tiny little perfectly reflective mirrors called microfacets. Depending on the roughness of the surface, the alignment of these tiny little mirrors can differ a lot
+
+- The rougher the surface is, the more chaotically aligned each microfacet will be along the surface
+
+- The effect of these tiny-like mirror alignments is that when specifically talking about specular lighting/reflection, the incoming light rays are more likely to scatter along completely differen directions on rougher surfaces, resulting in a more widespread specular reflection
+
+- In contrast, on a smooth surface the light rays are more likely to reflect in roughly the same direction, giving u s smaller and sharper reflections
+
 #### Lighting-PBR
 
-#### IBL
+#### IBL_Diffuse Irradiance
+
+#### IBL_Specular IBL
 
 ### Helpful Links
 
