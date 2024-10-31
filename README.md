@@ -1925,9 +1925,47 @@ The std140 explicitly states the memory layout for each variable and for each va
 - Taking discrete steps will always give us an approximation over the function and we can increase the accuracy of the sum by increasing the number of steps
 
 - The reflectance equation sums up the radiance of all incoming light directions ωi
-over the hemisphere Ω scaled by fr that hit point p and returns the sum of reflected light Lo in the viewer's direction. The incoming radiance can come from light sources as we're familiar with, or from an environment map measuring the radiance of every incoming direction as we'll discuss in the IBL chapters
+over the hemisphere Ω scaled by fr that hit point p and returns the sum of reflected light Lo in the viewer's direction. The incoming radiance can come from light sources, or from an environment map measuring the radiance of every incoming direction
 
 - The final symbol to analyze in the equation is the fr symbol known as the BRDF or bidirectional reflective distribution function that scales or weighs the incoming radiance based on the surface's material properties
+
+- The bidirectional reflective distribution function (BRDF) is a function that takes as input the incoming light direction "wi", the outgoing view direction "wo", the surface normal "n", and a surface parameter "a" that represents the microsurface's roughness
+
+- The BRDF approximates how each individual light ray "wi" contributes to the final reflected light of an opaque surface given its material properties. For instance, if the surface has a perfectly smooth surface (~like a mirror), the BRDF function would return 0.0 for all incoming light rays "wi" except the one ray that has the same reflected angle as the outgoing ray "wo" at which the function returns 1.0
+
+- A BRDF approximates the material's reflective and refractive properties based on the previously discussed microfacet theory. For a BRDF to be physically plausible it has to respect the law of energy conversion i.e. the sum of reflected light should never exceed the amount of incoming light
+
+- Technically, Blinn-Phong is not considered physically based as it doesn't adhere to the energy conservation principle
+
+- There are several physically based BRDFs out there to approximate the surface's reaction to light. However, almost all real-time PBR render pipelines use a BRDF known as Cook-Torrance BRDF
+
+- The Cook-Torrance BRDF contains both a diffuse and a specular part:
+
+  - fr = (kd . f_lambert) + (ks . f_cook−torrance)
+
+- Here "kd" is the ealier mentioned ratio of incoming light energy that gets refracted with "ks" being the ratio that gets reflected. The left side of the BRDF states the diffuse part of the equation denoted here as f_lambert
+
+- This is known as Lambertian diffuse similar to what we used for diffuse shading, which is constant factor denoted as : f_lambert = c/pi, with c being the albedo or surface color (think the diffuse surface texture). The divide by pi is there to normalize the diffuse light as the earlier denoted integral that contains the BRDF is scaled by pi
+
+- The way the Lambertina diffuse relates to the diffuse lighting that we've been using is that it is the surface color multiplied by the dot prodcut between the surface's normal and light direction. The dot product is still there but moved out of the BRDF as we find n . wi at the end of the Lo integral
+
+- There exist different equations for the diffuse part of the BRDF which tend to look more realistic but are also more computationaly expensive. As concluded by Epic Games however, the Lambertian diffuse is sufficient enough for most real-time rendering purposes
+
+- The specular part of the BRDF is a bit more advanced and is described as:
+
+  - f_CookTorrance = DFG / 4(ωo⋅n)(ωi⋅n)
+
+- The Cook-Torrance specular BRDF is composed of three functions and a normalization factor in the denominator. Each of the D, F and G symbols represent a type of function that approximates a specific part of the surface's reflective properties
+
+- These are defined as the normal Distribution Function (D), the Fresnel equation (F) and the Geometry function:
+
+  - Normal Distribution function: this approximates the amount the surface's microfacets are aligned to the halfway vector, influenced by the roughness of the surface; this is the primary fucntion approximating the microfacets
+
+  - Geometry function: describes the self-shadowing property of the microfacets. When a surface is relatively rough, the surface's microfacets can overshadow other microfacets reducing the light surface reflects
+
+  - Fresnel equation: The Fresnel equation describes the ratio of surface reflection at different surface angles
+
+- Each of these functions is an approximation of their physics equivalent and there'll be more than one version of each that aims to approximate the underlyign physics in different ways; some mroe realistic, others more efficient
 
 #### Lighting-PBR
 
@@ -2013,3 +2051,5 @@ over the hemisphere Ω scaled by fr that hit point p and returns the sum of refl
   - Another SSAO article - <https://mtnphil.wordpress.com/2013/06/26/know-your-ssao-artifacts/>
 
   - Getting position from depth - <https://mynameismjp.wordpress.com/2010/09/05/position-from-depth-3/>
+
+- BRDF Specular Functions article - <https://graphicrants.blogspot.com/2013/08/specular-brdf-reference.html>
