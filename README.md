@@ -1853,8 +1853,81 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - The distinction between reflected and refracted light brings us to another observation regarding energy preservation: they're mutually exclusive. Whatever light energy gets reflected will no longer be abosorbed by the material itself. Thus, the energy left to enter the surface as refracted light is directly resulting energy after we've taken reflection into account
 
-- We preserve this energy conserving relation by first calculating the specular fraction that amounts to the percentage the incoming light's energy is reflected
+- We preserve this energy conserving relation by first calculating the specular fraction that amounts to the percentage the incoming light's energy is reflected. The fraction of the refracted light is then directly calculated from the specular fraction but subtracting the previously calculated number for from 1.0
 
+- This ensures that all the light values sum up to 1.0
+
+- The render equation is an elaborate equation used to simulate the visuals of light. PBR strongly follows a more specialized version of the render equation known as the reflectance equation. To properly understand PBR, having a strong understading of the reflectance equation is important
+
+- The reflectance equation:
+  - Lo(p,ωo)=∫Ω fr(p,ωi,ωo) ⋅ Li(p,ωi)n ⋅ ωidωi
+
+- To understand the reflectance equation, we need to understand radiometry
+
+- Radiometry is the measurement if electromagnetic radiation including visible light. There are several radiometric quantities we can use to measure light over surfaces and directions but will focus on one that relevant to the reflectance equation known as radiance denoted as "L"
+
+- Radiance is used to quantify the magnitude or strength of light coming from a single direction. It is the combination of multiple physical quantities:
+
+  - Radiant Flux
+
+    - radiant flux (Φ) is the transmitted energy of a light source measured in Watts. Light is a collective sum of energy over multiple different wavelengths, each wavelength associated with a particular visible color
+
+    - The emitted energy of a light source can therefore by thought of as a function of all its different wavelengths. Wavelengths between 390nm to 700nm are considered part of the visible light spectrum i.e. wavelengths the human eye is able to percieve
+
+    - The radiant flux measures the total area of this function of different wavelengths. Directly taking this measure of wavelengths as input is slightly impractical so we often make the simplification of representing radiant flux not as a function of varying wavelength strengths but as a light color tripplet encoded as RGB ( or as we'd commonly call it: light color). This encoding does come at quite a loss of information but this is generally negligible for visual aspects
+
+  - Solid Angle
+
+    - The solid angle denoted as ω, tells us the size or area of a shape projected onto a unit sphere. The area of the projected shape onto this unit sphere is known as the solid angle; you can visualize the solid angle as a direction with volume. Think of being an observer at the center of this unit sphere and looking in the direciton of the shape; the size of the silhouette you make out is the solid angle
+
+  - Radiant Intensity
+
+    - Radiant intensity measures the amount of radiant flux per solid angle or the strength of a light source over a projected area onto the unit sphere. For instance, given an omnidirectional light that radiates equally in all directions, the radiant intensity can give us its energy over a specific area (solid angle)
+
+    - The equations to describe the radiant intensity is: I=dΦ/dω, where I is the radiant flux Φ over the solid angle ω
+
+- With the knowledge of radiant flux, radiant intensity and the solid angle, we can finally describe the equation for radiance
+
+- Radiance is described as the total observed energy in an area A over the solid angle ω of a light of radiant intensity Φ
+
+  - L = (d^2) * Φ / dA*dω*cosθ
+
+  - Radiance is a radiometric measure of the amount of light in an area scaled by the incident (or incoming) angle θ of the light to the surface's normal as cosθ
+
+- Light is weaker the less it directly radiates onto the surface and strongest when it is directly perpendicular to the surface. This is similar to our perception of diffuse lighting as cosθ directly corresponds to the dot product between the light's direction vector and the surface normal
+
+- The radiance equation is quite useful as it ocntians most physcial quantities we're interested in. If we consider the solid angle ω and the area A to be infinitely small, we can use radiance to measure the flux of a single ray of light hitting a single point in space.
+
+- This relation allows us to calculate the radiance of a single light ray influencing a single (fragment) point; we effectively translate the solid angle ω into a direction vector ω and A into a point p. This way we can directly use radiance in our shaders to calculate a single light ray's per-fragment contribution
+
+- In fact when it comes to radiance, we generally care about all incoming light onto a point p, which is the sum of all radinace known as irradiance
+
+- With knowledge knowledge of radiance and irradiance, we can get back to the reflectance equation:
+
+  - Lo(p,ωo)=∫Ωfr(p,ωi,ωo)Li(p,ωi)n⋅ωidωi
+
+- We know that L in the render equation represents the radiance of some point p and some incoming small solid angle ωi which can be thought of as an incoming direction vector ωi
+
+- Remember that cosθ  scales the energy based on the light's incident angle to the surface, which we find in the reflectance equation n ⋅ ωi
+
+- The relfectance equation calculates the sum of reflected radiance Lo(p,ωo) of a point p in the direction ωo which is the outgoing direction to the viewer
+
+- Or to put it differently, Lo measures the reflected sum of the lights' irradiance into point p as viewed from ωo
+
+- The reflectance equation is based on irradiance, which is the sum of all incoming radiance we measure light of. Not just of a single incoming light direction, but of all incoming light directions within a hemisphere Ω centered around point p. A hemisphere can be described as half a sphere aligned around a surface's normal n
+
+- To calculate the total of values inside an area or in the case of the hemisphere, inside the volume, we use an integral ∫ over all incoming directions dωi within the hemisphere Ω
+
+- An integral measures the area of a function which can either be calculated analytically or numerically. As there is no analytical solution to both the render and reflectance equation, we'll want to numericlly solve the integral discretely
+
+- This translates to taking the result of small discrete steps of the reflectance equation over the hemisphere Ω and averaging their results over the step size. This is known as the Riemann sum
+
+- Taking discrete steps will always give us an approximation over the function and we can increase the accuracy of the sum by increasing the number of steps
+
+- The reflectance equation sums up the radiance of all incoming light directions ωi
+over the hemisphere Ω scaled by fr that hit point p and returns the sum of reflected light Lo in the viewer's direction. The incoming radiance can come from light sources as we're familiar with, or from an environment map measuring the radiance of every incoming direction as we'll discuss in the IBL chapters
+
+- The final symbol to analyze in the equation is the fr symbol known as the BRDF or bidirectional reflective distribution function that scales or weighs the incoming radiance based on the surface's material properties
 
 #### Lighting-PBR
 
