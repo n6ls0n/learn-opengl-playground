@@ -1817,7 +1817,44 @@ The std140 explicitly states the memory layout for each variable and for each va
 
 - The effect of these tiny-like mirror alignments is that when specifically talking about specular lighting/reflection, the incoming light rays are more likely to scatter along completely differen directions on rougher surfaces, resulting in a more widespread specular reflection
 
-- In contrast, on a smooth surface the light rays are more likely to reflect in roughly the same direction, giving u s smaller and sharper reflections
+- In contrast, on a smooth surface the light rays are more likely to reflect in roughly the same direction, giving us smaller and sharper reflections
+
+- No surface is completely smooth on a microscopic level, but seeing as these microfacets are small enough that we can't make a distinction between them on a per-pixel basis, we statistically approximate the surface's microfacet roughness with a roughness parameter
+
+- Based on the roughness of a surface, we can calculate the ratio of microfacets roughly aligned to some vector h. This vector "h" is the halfway vector that sits halfway between the light "l" and view "v" vector
+
+- The more the microfacets are aligned to the halfway vector, the sharper and stronger the specular reflection. Together with a roughness parameter that varies between 0 and 1, we can statistically approximate the alignment of the microfacets
+
+- Higher roughness values display a much larger specular reflection shape, in contrast with the smaller and sharper specular reflection shape of smooth surfaces
+
+- The microfacet approximation employs a form of energy conservation: outgoing light energy should never exceed incoming light energy (excluding emissive surfaces)
+
+- This is why we see specular reflections more intensely on smooth surfaces and more dimly on rough surfaces
+
+- For energy conservation to hold, we need to make a clear distinction between diffuse and specular light. The moment a light ray hits a surface, it gets split in both a refraction and a reflection part
+
+- The reflection part is light that directly gets reflected and doesn't enter the surface ; this is what we know as specular lighting. The refraction part is the remaining light that enters the surface and gets absorbed; this is what we know as diffuse lighting
+
+- There are some nuances here as refracted light doesn't immediately get absorbed by touching the surface. From physics we know that light can be modelled as a beam of energy that keeps moving forward until it loses all of its energy
+
+- The way a light beam loses energy is by collision
+
+- Each material consists of tiny little particles that can collide with the light ray. The particle absorb some or all of the light's energy at each collision which is converted into heat
+
+- Generally not all energy is absorbed and the light will continue to scatter in a mostly random direction at which point it collides with other particles until its energy si depleted or it leaves the surface again. Light rays re-emerging out of the surface contribute to the surface's observed (diffuse) color
+
+- In PBR we make the simplifying assumption that all refracted light gets absorbed and scattered at a very small area of impact, ignoring the effect of scattered light rays that would've exited the surface at a distance
+
+- Specific shader techniques that do take this into account are known as subsurface scattering techniques that significantly improve the visual quality of materials like skin, marble or wax but come at the price of performance
+
+- An additional subtlety when it comes to reflection and refraction are surfaces that are metallic. Metallic surfaces react different to light compared to non-metallic surfaces (also known as dielectrics)
+
+- Metallic surfaces follow the same principles of reflection and refraction but all refracted light gets directly absorbed without scattering. This means metallic surfaces only leave reflected or specular light; metallic surfaces show no diffuse colors. This leads to both materials being treated differently in the PBR pipeline
+
+- The distinction between reflected and refracted light brings us to another observation regarding energy preservation: they're mutually exclusive. Whatever light energy gets reflected will no longer be abosorbed by the material itself. Thus, the energy left to enter the surface as refracted light is directly resulting energy after we've taken reflection into account
+
+- We preserve this energy conserving relation by first calculating the specular fraction that amounts to the percentage the incoming light's energy is reflected
+
 
 #### Lighting-PBR
 
