@@ -1985,23 +1985,69 @@ over the hemisphere Ω scaled by fr that hit point p and returns the sum of refl
 
     - Similar to the NDF, the geometry function takes a materials roughness parameter as input with rougher surfaces having a higher probability of overshadowing microfacets
 
-- The geometry function we'll use:
-    $$ GSchlickGGX(n,v,k) = \frac{n \cdot v}{(n \cdot v)(1-k) + k}$$
+    - The geometry function we'll use:
+        $$ GSchlickGGX(n,v,k) = \frac{n \cdot v}{(n \cdot v)(1-k) + k}$$
 
-  - Here "k" is a remapping of "a" based on whether we're using the geometry function for either direct lighting or IBL:
+      - Here "k" is a remapping of "a" based on whether we're using the geometry function for either direct lighting or IBL:
 
-    $$ kdirect=(α+1)^2/8$$
+        $$ kdirect=(α+1)^2/8$$
 
-    $$ kIBL=α^2/2$$
+        $$ kIBL=α^2/2$$
 
-  - Note that the value of "a" may differ based on how your engine translates roughness to "a"
+      - Note that the value of "a" may differ based on how your engine translates roughness to "a"
 
-  - TO effectively approximate the geometry, we need to take account of both the view direction (geometry obstruction) and the light direction vector (geometry shadowing)
+      - TO effectively approximate the geometry, we need to take account of both the view direction (geometry obstruction) and the light direction vector (geometry shadowing)
 
-  - We take both into account using Smith's method:
-      $$G(n,v,l,k)=Gsub(n,v,k)Gsub(n,l,k)$$
+      - We take both into account using Smith's method:
+          $$G(n,v,l,k)=Gsub(n,v,k)Gsub(n,l,k)$$
 
-- Fresnel-Schlick approximation for F
+  - Fresnel-Schlick approximation for F
+
+    - The Fresnel equation describes the raio of light that gets reflected over the light thaat get refracted, which varies over the angle we're looking at a surface
+
+    - The moment light hits a surface, based on the surface-to-view angle, the Fresnel equation tells us the percentage of light that gets reflected
+
+    - From this ratio of reflection and the energy conservation principle, we can directly obtain the refracted portion of the light
+
+    - Every surface or mateiral has a level of base reflectivity when looking straight at its surface, but when looking at the surface from an anlge all relfection become more apparent comapared to the surface's base reflectivity
+
+    - All surfaces theoretically reflect light if seen from perfect 90-degree angles. This phenomenom is known as Fresnel and is described by the Fresnel equation
+
+    - The Fresnel equation:
+
+        $$FSchlick(h,v,F0)=F0+(1−F0)(1−(h⋅v))^5$$
+
+    - F0 represents the base reflectivity of the surface, which we calculate using something called the indices of refraction or IOR
+
+    - There are a few subtelities involved with the Fresnel equation
+
+    - One is that the Fresnel-Schllick approximation is only really defined for dielectric or non-metal surfaces. For conductor surfaces (metals), calculating the based reflectivity with the indices of refreaction doesn't properly hold and we need to use a different Fresnel Equation for conductors altogether
+
+    - As this is incovinient, we further approximate by pre-computing the surface's response at normal incidence (F0) at a 0 degree angle as if looking directly onto a surface
+
+    - We interpolate this value based on the view angle, as per the Fresnel-Schlick approximation such that we can use the same equation for both metals and non-metals
+
+    - What is interesting to observe here is that for all dielectric surfaces the base reflectivity never gets above 0.17 which is the exception rather than the rule, while for conductors the base reflectivity starts much higher and mostly varies between 0.5 and 1.0
+
+    - Furthermore, for conductors (or metallic surfaces) the base reflectivity is tinted. This is why F0 is presented as RGB triplet (reflectivity at normal incidence can vary per wavelength). This is something we only see at metallic surfaces
+
+    - These specific attributes of metallic surfaces compared to dielectric surfaces gave rise to something called the metallic workflow
+
+    - In the metallic workflow, we author surface materials with an extra parameter known as the "metalness" that describes whether a surface is either metallic or a non-metallic surface
+
+    - Theoretically, the metalness of a material is binary: it's either a metal or it isn't; it can't be both. However, most render pipelines allow configuring the metalness of a surface linearly between 0.0 and 1.0. This is mostly because of the lack of material textrure precision. For instance, a surface having small (non-metal) dust/sand-like particles/scratches over a metallic surface is difficult to render with binary metalness values
+
+    - By pre-computing F0 for both dielectrics and conductors, we can use the same Fresnel-Schlick approximation for both types of surfaces but we do have to tint the base reflectivity if we have a metallic surface
+
+    - We defne a base reflectivity that is approximated for most dielectric surfaces. This is yet another approximation as F0 is averaged aroundf most common dielectrics. A base relfectivity of 0.04 holds for most dielectrics and produces physically plausible results without having to author an additional surface parameter
+
+    - Then, based on how metallic a surface is, we either take the dielectric based reflectivity or take F0 authored as the surface color. Because metallic surfaces absorb all refracted light they have no diffuse reflections and we can directly use the surface color texture as their base reflectivity
+
+- The Final Cook-Torrance equation then becomes
+
+    $$Lo(p,\omega_o)=\int_\Omega\left(k_d\frac{c}{\pi}+DFG/4(\omega_o\cdot n)(\omega_i\cdot n)\right)L_i(p,\omega_i)n\cdot\omega_id\omega_i$$
+
+- This equation now completely describes a PBR render model
 
 #### Lighting-PBR
 
@@ -2089,3 +2135,5 @@ over the hemisphere Ω scaled by fr that hit point p and returns the sum of refl
   - Getting position from depth - <https://mynameismjp.wordpress.com/2010/09/05/position-from-depth-3/>
 
 - BRDF Specular Functions article - <https://graphicrants.blogspot.com/2013/08/specular-brdf-reference.html>
+
+- Site for the base reflectivity of materials - <https://refractiveindex.info/>
