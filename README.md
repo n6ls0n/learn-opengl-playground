@@ -2049,6 +2049,33 @@ over the hemisphere Ω scaled by fr that hit point p and returns the sum of refl
 
 - This equation now completely describes a PBR render model
 
+- Each of the surface parameters we need for a PBR pipeline can be defined or modeled by textures
+
+- Using textures gives us a per-fragment control over how each specific surface should react to light: whether that point is metallic, rough or smooth, or how the surface responds to different wavelengths of light
+
+- The list of textures found in a PBR pipeline include:
+
+  - Albedo
+    - The albedo texture specifies for each texel the color of the surface, or the base reflectivity if that texel is metallic. This is largely similar to the diffuse texture in non-PBR rendering done earlier but all lighting information is extracted from the texture
+
+    - Diffuse textures often have slight shadows or darkened crevices inside the image which is something you don't want in an albedo texture; it should only contain the color ( or refracted absoprtion coefficients) of the surface
+
+  - Normal
+
+    - The normal map allows use to specify, per fragment, a unique normal to give the illusion that a surface is bumpier than its flat counterpart
+
+  - Metallic
+
+    - The metallic map specifies per texel whether a texel is either metallic or it isn't. Based on how the PBR engine is set up, artists can author metalness as either grayscal values or as binary black or white
+
+  - Roughness
+
+    - The roughness map specifies how rough a surface is on a per texel basis. The sampled roughness value of the roughness influences the statistical microfacet orientations of the surface. A rougher surface get wider and blurrier reflection while a smooth surface gets focused and clear reflections. Some PBR engines expect a smoothness map instead of a roughness map which some artists find more intuitive. These values are then translated (1.0 - smoothness) to roughness the moment they are sampled
+
+  - Ambient Occlusion:
+
+    - The AO map specifies extra shadowing factor of the surface and potentially surrounding geometry. If we have a brick surface for instance, the albedo texture should have no shadowing information inside the brick's crrevices. The AO map however does specify these darkened edges as it's more difficult for light to escape. Taking AO in account at the end of the lighting stage can significantly boost the visual quality of your scene. The ambient occlusion map of a mesh/surface is either manually generated or pre-caculated in in 3D modelling programs
+
 #### Lighting-PBR
 
 #### IBL_Diffuse Irradiance
@@ -2136,4 +2163,20 @@ over the hemisphere Ω scaled by fr that hit point p and returns the sum of refl
 
 - BRDF Specular Functions article - <https://graphicrants.blogspot.com/2013/08/specular-brdf-reference.html>
 
-- Site for the base reflectivity of materials - <https://refractiveindex.info/>
+- PBR Links:
+
+  - Site for the base reflectivity of materials - <https://refractiveindex.info/>
+
+  - Background: Physics and Math of Shading - <https://blog.selfshadow.com/publications/s2013-shading-course/hoffman/s2013_pbs_physics_math_notes.pdf>
+
+  - Real Shading in Unreal Engine 4 - <https://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf>
+
+  - PBR Shader toy dem - <https://www.shadertoy.com/view/4sSfzK>
+
+  - PBR introduction for artists - <https://marmoset.co/resources/>
+
+  - Article on PBR - <http://www.codinglabs.net/article_physically_based_rendering.aspx>
+
+  - Article on Cook-Torrance BRDF - <http://www.codinglabs.net/article_physically_based_rendering_cook_torrance.aspx>
+
+  - Another PBR article - <http://blog.wolfire.com/2015/10/Physically-based-rendering>
