@@ -1965,7 +1965,43 @@ over the hemisphere Ω scaled by fr that hit point p and returns the sum of refl
 
   - Fresnel equation: The Fresnel equation describes the ratio of surface reflection at different surface angles
 
-- Each of these functions is an approximation of their physics equivalent and there'll be more than one version of each that aims to approximate the underlyign physics in different ways; some mroe realistic, others more efficient
+- Each of these functions is an approximation of their physics equivalent and there'll be more than one version of each that aims to approximate the underlying physics in different ways; some more realistic, others more efficient
+
+- The functions that will be used are
+
+  - Trowbridge-Reitz GGX for D
+
+    $$a^2 / \pi (((\mathbf{n} \cdot \mathbf{h})^2 * a^2 - 1) + 1)^2$$
+
+    - Here h is the halfway vector to measure against the surface's microfacets, with "a" being a measure of the surface's roughness.
+
+    - The normal distribution function D statistically approximates the relative surface area of microfacets exactly aligned to the halfway vector "h". The Trowbridge-Reitz GGX is used in our studies. When the roughness is low (thus the surface is smooth), a highly concentrated number of microfacets are aligned to the halfway vectors over a small radius.
+
+    - Due to this high concentration, the NDF displays a very bright spot. On a rough surface however, where the microfacets are aligned in much more random directions, you'll find a much larger number for halfway vectors "h" somewhat aligned to the microfacets (but will be less concentrated)
+
+  - Smith's Schlick-GGX for G
+
+    - The geometry function statistically approximates the relative surface area where its mirror surface details overshadow each other causing light rays to be occluded
+
+    - Similar to the NDF, the geometry function takes a materials roughness parameter as input with rougher surfaces having a higher probability of overshadowing microfacets
+
+- The geometry function we'll use:
+    $$ GSchlickGGX(n,v,k) = \frac{n \cdot v}{(n \cdot v)(1-k) + k}$$
+
+  - Here "k" is a remapping of "a" based on whether we're using the geometry function for either direct lighting or IBL:
+
+    $$ kdirect=(α+1)^2/8$$
+
+    $$ kIBL=α^2/2$$
+
+  - Note that the value of "a" may differ based on how your engine translates roughness to "a"
+
+  - TO effectively approximate the geometry, we need to take account of both the view direction (geometry obstruction) and the light direction vector (geometry shadowing)
+
+  - We take both into account using Smith's method:
+      $$G(n,v,l,k)=Gsub(n,v,k)Gsub(n,l,k)$$
+
+- Fresnel-Schlick approximation for F
 
 #### Lighting-PBR
 
