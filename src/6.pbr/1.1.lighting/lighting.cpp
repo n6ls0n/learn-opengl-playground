@@ -6,7 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <learnopengl/filesystem.h>
+// #include <learnopengl/filesystem.h>
 #include <learnopengl/shader.h>
 #include <learnopengl/camera.h>
 #include <learnopengl/model.h>
@@ -135,19 +135,19 @@ int main()
 
         // render rows*column number of spheres with varying metallic/roughness values scaled by rows and columns respectively
         glm::mat4 model = glm::mat4(1.0f);
-        for (int row = 0; row < nrRows; ++row) 
+        for (int row = 0; row < nrRows; ++row)
         {
             shader.setFloat("metallic", (float)row / (float)nrRows);
-            for (int col = 0; col < nrColumns; ++col) 
+            for (int col = 0; col < nrColumns; ++col)
             {
                 // we clamp the roughness to 0.05 - 1.0 as perfectly smooth surfaces (roughness of 0.0) tend to look a bit off
                 // on direct lighting.
                 shader.setFloat("roughness", glm::clamp((float)col / (float)nrColumns, 0.05f, 1.0f));
-                
+
                 model = glm::mat4(1.0f);
                 model = glm::translate(model, glm::vec3(
-                    (col - (nrColumns / 2)) * spacing, 
-                    (row - (nrRows / 2)) * spacing, 
+                    (col - (nrColumns / 2)) * spacing,
+                    (row - (nrRows / 2)) * spacing,
                     0.0f
                 ));
                 shader.setMat4("model", model);
@@ -157,7 +157,7 @@ int main()
         }
 
         // render light source (simply re-render sphere at light positions)
-        // this looks a bit off as we use the same shader, but it'll make their positions obvious and 
+        // this looks a bit off as we use the same shader, but it'll make their positions obvious and
         // keeps the codeprint small.
         for (unsigned int i = 0; i < sizeof(lightPositions) / sizeof(lightPositions[0]); ++i)
         {
@@ -207,7 +207,7 @@ void processInput(GLFWwindow *window)
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    // make sure the viewport matches the new window dimensions; note that width and 
+    // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
 }
@@ -309,7 +309,7 @@ void renderSphere()
         {
             data.push_back(positions[i].x);
             data.push_back(positions[i].y);
-            data.push_back(positions[i].z);           
+            data.push_back(positions[i].z);
             if (normals.size() > 0)
             {
                 data.push_back(normals[i].x);
@@ -330,10 +330,10 @@ void renderSphere()
         unsigned int stride = (3 + 2 + 3) * sizeof(float);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
-        glEnableVertexAttribArray(1);        
+        glEnableVertexAttribArray(1);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)(6 * sizeof(float)));        
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, stride, (void*)(6 * sizeof(float)));
     }
 
     glBindVertexArray(sphereVAO);
