@@ -2078,6 +2078,40 @@ over the hemisphere Ω scaled by fr that hit point p and returns the sum of refl
 
 #### Lighting-PBR
 
+- Having derived the full reflectance equation, we now know mostly what's going on but what still remains a big unknown is how exactly we're going to represent irradiance, the total radiance L of the scene.
+
+- We know that radiance L (as interpreted in computer graphics land) measures the radiant flux ϕ or light energy of a light source over a given solid angle ω. In our case we assumed the solid angle ω to be inifinitely small in which case radiance measures the flux of a light source over a single light ray
+
+- Given this knowledge, how do we translate this into some of the lighting knowledge we've previously accumulated?
+
+- Imagine we have a single point light (a light source that shine equally bright in all directions) wiht a radiant flux of (23.47, 21.31, 20.79) as translated to an RGB triplet.
+
+- The radiant intensity of this light source equals its radiant flux at all outgoing direction rays. However, when shading a specific point "p" on a surface, of all possible incoming light directions over its hemisphere Ω, only one incoming direction vecotor wi directly comes from the point light source
+
+- As we only have a single light source in our scene, assumed to be a single point in space, all other possible incoming light directions have zero radiance observed over the surface point "p"
+
+- If at first we assume that light attenuation (dimming of light over a distance) does not affect the point light source, the radiance of the incoming light ray is the same regardless of where we position the light (excluding scaling the radiance by the incident angle cosθ)
+
+- This is because the point light has the same raidant intensity regardless of the angle we look at it, effectively modeling its radiant intensity as its radiant flux: a constant vector (23.47, 21.31, 20.79)
+
+- However, radiance also takes a position "p" as input and as any realistic point light source takes light attenuation into account, the radiant intensity of the point light source is scaled by some measure of the distance between point p and the light source
+
+- Then, as extracted from the original radiance equation, the result is scaled by the dot product between the surface normal n and the incoming light direction wi
+
+- In more practical terms: in the case of a direct point light, the radiance function L measures the light color attenuated over its distance to p and scaled by n*wi, but only over the single light ray wi that hit p which equals the light's direction vector from p
+
+- When it comes to direct lighting, radiance is calculated similiarly to how we've calculated lighting before as only a single ligfht direction vector contributes to the surface's radiance
+
+- Note that this assumptions holds as point light are inifinitely small and only a single point in space. If we were to model a light that has area or volume, its radiance would be non-zero in more than one incoming light direction
+
+- For other types of light sources originating from a single point we calculate the radiance similarly. For instance, a directional light source has a constant wi, without an attenuation factor. And a spotlight would not have a constant radiant intensity but one that is scaled by the forward direction vector of the spotlight
+
+- This also brings us back to the integral over the surface's hemisphere. As we know beforehand the single locations of all the contributing light sources while shading a single surface point, it is not required to try and solve the integral
+
+- We can directly take the known number of light sources and calculate their total irradiance, given that each light source ahs onlyu a single light direction that influences the surface's irradiance
+
+- This makes PBR on direct light source relatively simple as we effectively only have to loop over the contributing light sources. When we later take environment lighting into account, we do have to take the integral into account as light can come from any direction
+
 #### IBL_Diffuse Irradiance
 
 #### IBL_Specular IBL
