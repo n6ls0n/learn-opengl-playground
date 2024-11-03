@@ -6,7 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <learnopengl/filesystem.h>
+// #include <learnopengl/filesystem.h>
 #include <learnopengl/shader.h>
 #include <learnopengl/camera.h>
 #include <learnopengl/model.h>
@@ -90,11 +90,11 @@ int main()
 
     // load PBR material textures
     // --------------------------
-    unsigned int albedo    = loadTexture(FileSystem::getPath("resources/textures/pbr/rusted_iron/albedo.png").c_str());
-    unsigned int normal    = loadTexture(FileSystem::getPath("resources/textures/pbr/rusted_iron/normal.png").c_str());
-    unsigned int metallic  = loadTexture(FileSystem::getPath("resources/textures/pbr/rusted_iron/metallic.png").c_str());
-    unsigned int roughness = loadTexture(FileSystem::getPath("resources/textures/pbr/rusted_iron/roughness.png").c_str());
-    unsigned int ao        = loadTexture(FileSystem::getPath("resources/textures/pbr/rusted_iron/ao.png").c_str());
+    unsigned int albedo    = loadTexture("albedo.png");
+    unsigned int normal    = loadTexture("normal.png");
+    unsigned int metallic  = loadTexture("metallic.png");
+    unsigned int roughness = loadTexture("roughness.png");
+    unsigned int ao        = loadTexture("ao.png");
 
     // lights
     // ------
@@ -168,7 +168,7 @@ int main()
         }
 
         // render light source (simply re-render sphere at light positions)
-        // this looks a bit off as we use the same shader, but it'll make their positions obvious and 
+        // this looks a bit off as we use the same shader, but it'll make their positions obvious and
         // keeps the codeprint small.
         for (unsigned int i = 0; i < sizeof(lightPositions) / sizeof(lightPositions[0]); ++i)
         {
@@ -218,7 +218,7 @@ void processInput(GLFWwindow *window)
 // ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
-    // make sure the viewport matches the new window dimensions; note that width and 
+    // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
     glViewport(0, 0, width, height);
 }
