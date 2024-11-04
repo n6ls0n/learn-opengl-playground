@@ -2317,3 +2317,5 @@ $$ Lo(p, \phi_o, \theta_o) = k_d\frac{c}{\pi} \int\limits_{\phi=0}^{2\pi} \int\l
   - Good Website for Graphics and PBR fundamentals - <https://www.scratchapixel.com/>
 
   - Short article on PBR - <http://www.codinglabs.net/article_physically_based_rendering.aspx>
+
+  - Another article on PBR - <https://seblagarde.wordpress.com/2011/08/17/hello-world/>
