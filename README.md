@@ -2184,6 +2184,35 @@ over the hemisphere Ω scaled by fr that hit point p and returns the sum of refl
 
 - In most cases this is a decent compromise as with almost any renderer you'll find most of the interesting light and surroundings in the horizontal viewing directions
 
+- As described earlier, the main goal is to solve the integral for all diffuse indirect lighting given the scene's irradiance in the form a cubemap environment map. We know that we can get the radiance of the scene in a particular direction by sampling an HDR environment in direction wi. To solve the integral, we have to sample the scene's radiance from all possible directions within the hemisphere
+
+- It is however computationally impossible to sample the environment's lighting from every possible direction in the hemisphere, the number of possible directions is theoretically infinite
+
+- We can however approximate the number of directions by taking a finite number of directions or samples spaced uniformly or taken randomly from within the hemisphere to get a fairly accurate approximation of the irradiance effectively solving the integral discretely
+
+- It is however still too expensive to do this for every fragment in real-time as the number of samples needs to be significantly large for decent results, so we want to pre-compute this. Since the orientation of the hemisphere decides where we capture the irradiance, we can pre-calculate the irradiance for every possible hemisphere orientation oriented around all outgoing directions "wo"
+
+- Givne any direction vector "wi" in the lighting pass, we can then sample the pre-computed irradiance map to retrieve the total diffuse irradiance from direction "wi". To determine the amount of indirect diffuse (irradiant) light at a fragment surface, we retrieve the total irradiance from the hemisphere oriented around its surface normal
+
+- To generate the irradiance map, we need to convolute the environment's lighting as converted to a cubemap. Given that for each fragment the surface's hemisphere is oriented along it's surface normal vector, convoluting a cubemap equals calculating the total averaged radiance of each direction wi in the hemisphere oriented along the surface normal
+
+- There are many ways to convolute the environment map but one way is to generate a fixed amount of sample vectors for each cubemap texel along a hemisphere oriented around the sample direction and average the results
+
+- The fixed amount of sample vectors will be uniformly spread inside the hemisphere. Note that this will be an approximation since an integral is continous and we are discretely sampling its function given a fixed amount of sample vectors. The more sample vectors we use, the better we approximate the integral
+
+- The integral of the reflectance equation revolves around the solid angle "dw" which is rather diffcult to work with. Instead of integrating over the solid angle we'll integrate over its equivalent spherical coordinates θ and ϕ
+
+- We use the polar azimuth ϕ angle to sample around the ring of the hemisphere between 0 and 2π , and use the inclination zenith θ angle between 0 and 12π to sample the increasing rings of the hemisphere
+
+- This will give us the updated reflectance integral
+
+$$ Lo(p, \phi_o, \theta_o) = k_d\frac{c}{\pi} \int\limits_{\phi=0}^{2\pi} \int\limits_{\theta=0}^{\frac{\pi}{2}} L_i(p, \phi_i, \theta_i) \cos(\theta) \sin(\theta) d\phi d\theta $$
+
+- Recall from earlier in the notes that this is only for the diffuse portion
+
+- Solving the integral requires us to take a fixed number of discrete samples within the hemisphere and averaging the results. This translates the integral to the following discrete version based on the Reimann sum given n1 and n2 discrete samples each spherical coordinate respectively
+  $$ Lo(p,\phi_o,\theta_o) = k_d\frac{c}{\pi}\sum\limits_{\phi=0}^{n_1} \sum\limits_{\theta=0}^{n_2} L_i(p, \phi_i, \theta_i) \cos(\theta) \sin(\theta) d\phi d\theta $$
+
 #### IBL_Specular IBL
 
 ### Helpful Links
@@ -2284,3 +2313,7 @@ over the hemisphere Ω scaled by fr that hit point p and returns the sum of refl
   - Article on Cook-Torrance BRDF - <http://www.codinglabs.net/article_physically_based_rendering_cook_torrance.aspx>
 
   - Another PBR article - <http://blog.wolfire.com/2015/10/Physically-based-rendering>
+
+  - Good Website for Graphics and PBR fundamentals - <https://www.scratchapixel.com/>
+
+  - Short article on PBR - <http://www.codinglabs.net/article_physically_based_rendering.aspx>
