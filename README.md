@@ -2160,6 +2160,30 @@ over the hemisphere Ω scaled by fr that hit point p and returns the sum of refl
 
 - By storing the convoluted result in each cubemap texel (in the direction of wo), the irradiance map displays somewhat like an average color or lighting display of the environment. Sampling any direction from this environment map will give us the scene's irradiance in that particular direction
 
+- In a PBR pipeline, it's incredibly important to take the high dynamic range of your scene's lighting into account
+
+- As PBr bases most of its inputs on real physical properties and measurements it makes sense to closely match the incoming light values to their physical equivalents. Whether we make educated guesses on each light's radiant flux or use their direct physical equivalent, the difference between a simple light bulb or the sun is significant either way
+
+- Without working in an HDR environment, its impossible to correctly specify each light's relative intensity
+
+- For IBL, since we base the environment's indirect light intensity on the color values of an environment cubemap we need some way to store the lighting's high dynamic range into an environment map
+
+- Standard environment maps used for cubemaps are in LDR. We directly use their color values from the individual face images, ranged between 0.0 and 1.0, and processed them as is. While this may work fine for visual output, when taking them as physical input parameters it's not going to work
+
+- This leads us to the radiance file format
+
+- The radiance file format stores a full cubemap with all 6 faces as floating point data. This allows us to specify color values outside the 0.0 to 1.0 range to give lights their correct color intensities
+
+- The file format also uses a clever trick to store each floating point value, not as a 32 bit value per channel but 8 bits per channel using the color's alpha channel as an exponent (this does come with a loss of precision)
+
+- This works quite well but requires the parsing program to re-convert each color to their floating point equivalent
+
+- The environment map is projected from a sphere onto a flat plane such that we can more easily store the environment into a single image known as an equirectangular map
+
+- This does come with a small caveat as most of the visual resolution is stored in the horizontal view direction while less is preserved in the bottom and top directions
+
+- In most cases this is a decent compromise as with almost any renderer you'll find most of the interesting light and surroundings in the horizontal viewing directions
+
 #### IBL_Specular IBL
 
 ### Helpful Links
