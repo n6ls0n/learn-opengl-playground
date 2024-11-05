@@ -2266,9 +2266,85 @@ $$ Lo(p, \phi_o, \theta_o) = k_d\frac{c}{\pi} \int\limits_{\phi=0}^{2\pi} \int\l
 
 - If we pretend the incoming radiance is completely white for every direction  (thus L(p,x)=1.0) we can pre-calculate the BRDF's response given an input roughness and an input angle between the normal n and light direction wi or "n * wi"
 
-- Epic Gsmes stores the pre-computed BRDF's response to each normal and light direction combination on varying roughness values in a 2D lookup texture (LUT) known as the BRDF integration map. The 2D lookup textures outputs a scale (red) and a bias value (green) to the surface's Fresnel response giving us the second part of the split specular integral
+- Epic Games stores the pre-computed BRDF's response to each normal and light direction combination on varying roughness values in a 2D lookup texture (LUT) known as the BRDF integration map. The 2D lookup textures outputs a scale (red) and a bias value (green) to the surface's Fresnel response giving us the second part of the split specular integral
 
 - We egenrate the lookup texture by treating the horizontal texture coordinate (ranged between 0.0 to 1.0) of a plane as the BRDF's input "n*wi" and its vertical texture coordinate as the input roughness value
+
+- Pre-filtering an environment map is quite similar to how we convoluted an irradiance map. The difference being that we now account for roughness and store the sequentially rougher reflections in the pre-filtered maps mip's level
+
+- First we need to generate a new cubemap to hold the pre-=filtered environment data. To make sure we allocate enough memeory for its mip level we call glGenerateMipmap as an easy way to allocate the required amount of memory
+
+- We store the pre-filtered specular resolutions in a per-face resolution of 128 by 128 at its base mip level. This is likely to be enough for most reflections , but if you have a large number of smooth materials (think car reflections) you may want to increase the resolution
+
+- Recall that we convoluted the environment map by generating sample vectors uniformaly spread over the hemisphere using spherical coordinates
+
+- While this works just fine for irradiance, for specular reflections, it's less effcient
+
+- When it comes to specular reflections, based on the roughness of the surface, the light relfects closely or roughly around a relfection vector "r" over a normal "n" but (unless the surface is extremely rough) around the reflection vector
+
+- The general shape of possible outgoing light reflections is known as the specular lobe. As roughness increases, the specular lobe's size increases and the shape of the specular lobe changes on varying incoming light directions. The shape of the specular lobe is this highly dependent on the material
+
+- When it comes to the microsurface model, we can imagine the specular lobe as the reflection orientation about the microfacet halfway vectorsgiven some incoming light direction
+
+- Seeing as most light rays end up in a specular lobe relfected around the microfacet halfway vectors, it makes sense to generate the sample vectors in a similar fashion as most would otherwise be wasted. This proces is known as importance sampling
+
+- To get a full grasp of importance sampling, it's relevant we first delve into the mathematical construct known as Monte Carlo integration
+
+- Monte Carlo integration revolves mostly around a combination of statistics and probability theory
+
+-It helps us in discretely solving the problem of figuring out some statistic or value of a population without having to take all of the population into consideration
+
+- For  instance, let's say you want to count the average height of all citizens of a country. To get your result, you could measure eveyr citizen and average their height which will give you the exact answer you're looking for
+
+- However, since most countries have a considerable population this isn't a realistic approach as it would take too much time and effort
+
+- A different approach is to pick a much smaller completely random (unbiased) subset of this population, measure their height and average the result. This population could be as small as a 100 people
+
+- While not as accurate as the exact answer, you'll get an answer that is relatively close to the ground truth. This is known as the law of large numbers
+
+- The idea is that if you measure a smaller set of size N of truly random samples from the total population, the result will be relatively close to the true answer and gets close as the number of samples N increases
+
+- Monte Carlo integration builds on this law of large numbers and takes the same approach in solving an integral. Rather than solving an integral for all possible (theoretically inifinite) sample values x, simply generate N sample values randomly picked from the total population and average
+
+- As N increases, we're gauranteed to get a result closer to the exact answer of the integral
+
+    $$ O=\int_{a}^{b}f(x)dx=\frac{1}{N}\sum_{i=0}^{N-1}f(x)\frac{pdf(x)}{p} $$
+
+- To solve the integral, we take N random samples over the population from a to b, add them together and divide by the total number of samples to average them
+
+- The pdf stands for the probability density function that tells us the probability a specific sample occurs over the total sample set
+
+- When it comes to Monte Carlo integration, some samples may have a higher probability of being generated than others. This is why for any general Monte Carlo estimation, we divide or multiply the sampled value by the sample probability according to a pdf
+
+- So far, in each of the cases of estimating an integral, the smaples we've generated were unifomr, having the exact same chance of being generated
+
+- Our estimations so far were unbiased, meaning that given an ever-increasing amount of samples we will eventually converge to the exact solution of the integral
+
+- However, some Monte Carlo estimators are biased, meaning that the generated samples aren't completely random, but focused towards a specific value or direction
+
+- These biased Monte Carlo estimators have a faster rate of convergence, meaning they converge to the exact solution at a much faster, but due to their biased nature it's likely they won't ever converge to the exact solution
+
+- This is generally an acceptable tradeoff, especially in computer graphics, as the exact solution isn't too important as long as the results are visually acceptable
+
+- Importance sampling, which uses a biased estimator, has generated samples that are biased towards a specfic direction in which case we account for this by multiplying or dividing each sample by the pdf
+
+- Monte Carlo integration is quite prevalent in computer graphics as it's a fairly intuitive way to approximate continuous integrals in a discrete and efficient fashion: take any area/volume to sample over (like the hemisphere Ω), generate N amount of random samples within the area/volume, and sum and weigh every sample contribution to the final result
+
+- There are multiple ways of generating random samples.By default, each sample is completely (pseudo)random as we're used to, but by utilizing certain properties of semi-random sequences we can generate sample vectors that are still random, but have interesting properties. For instance, we can do Monte Carlo integration on something called low-discrepancy sequences which still generate random samples, but each sample is more evenly distributed
+
+- When using a low-discrepancy sequence for generating the Monte Carlo sample vectors, the process is known as Quasi-Monte Carlo integration. Quasi-Monte Carlo methods have a faster rate of convergence which makes them interesting for performance heavy applications
+
+- Given the newly obtained knowledge of Monte Carlo and Quasi-Monte Carlo integration, there is an interesting property we can use for an even faster rate of convergence known as importance sampling
+
+- Recall that when it comes to specular reflections, the reflected light vectors are constrained in a specular lobe with its size determined by the roughness of the surface
+
+- Seeing as any quasi-randomly generated sample outside of the specular lobe isn't relevant to the specular integral it make sense to focus the sample generation to sample within the specular lobe at the cost of the making the Monte Carlo estimator biased
+
+- This is in essence what importance sampling is about: generate sample vectors in some region constrained by the roughness oriented aorund the microfacet's halfway vector
+
+- By combining Quasi-Monte Carlo sampling with a low-discrepancy sequence and biasing the sample vectors using importance sampling, we geta high rate of convergence
+
+- Because we reach the solution at a faster rate, we'll need significantly fewer samples to reach an approximation that is sufficient enough
 
 ### Helpful Links
 
@@ -2374,3 +2450,5 @@ $$ Lo(p, \phi_o, \theta_o) = k_d\frac{c}{\pi} \int\limits_{\phi=0}^{2\pi} \int\l
   - Short article on PBR - <http://www.codinglabs.net/article_physically_based_rendering.aspx>
 
   - Another article on PBR - <https://seblagarde.wordpress.com/2011/08/17/hello-world/>
+
+  - Points on a hemisphere article - <http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html>
