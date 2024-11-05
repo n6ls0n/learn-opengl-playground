@@ -2215,6 +2215,61 @@ $$ Lo(p, \phi_o, \theta_o) = k_d\frac{c}{\pi} \int\limits_{\phi=0}^{2\pi} \int\l
 
 #### IBL_Specular IBL
 
+- Recall, that we split the reflectance equation into the diffuse and specular portions
+
+- The reflectance equation stated again:
+    $$Lo(p,\omega_o) = \int_\Omega \left(k_d\frac{c}{\pi} + k_s \frac{DFG}{4} (\omega_o \cdot n)(\omega_i \cdot n)\right)L_i(p, \omega_i) n \cdot \omega_i d\omega_i$$
+
+- The Cook-Torrance specular portion (multipled by k_s) isn't constant over the integral and is dependent on the incoming light direction, but also the incoming view direction. Trying to solve the integral for all incoming light direction including all possible view directions is a combinatorial overload and way too expensive to calculate on a real-time basis
+
+- Epic Games proposed a solution where they were able to pre-convolute the specualr part for real-time purposes, given a few compromises, known as the split-sum approximation
+
+- The split sum approximation splits the specular part of the reflectance equation into two seperate parts that we can individually convolute and later combine in the PBR shader for specular indirect image based lighting
+
+- Similar to how we pre-convolute the irradiance map, the split sum approximation requires an HDR environment map as its convolution input
+
+- To understand the split sum approximation we'll look again at the reflectance equation but this time focus on the specular part
+
+    $$Lo(p,\omega_o)=\int_\Omega\left(k_s\frac{DFG}{{4}(\omega_o\cdot n)(\omega_i\cdot n)}\right)L_i(p,\omega_i)n\cdot\omega_id\omega_i=\int_\Omega f_r(p,\omega_i,\omega_o)L_i(p,\omega_i)n\cdot\omega_id\omega_i$$
+
+- For the same performance reasons as the irradiance convolution, we can't solve the specular part of the integral in real time and expect a reasonable performance
+
+- So preferably we'd pre-compute this integral to get something like a specular IBL map, sample this map with the fragment's normal and be done with it
+
+- However, this is where it gets a bit tricky. We were able to pre-compute the irradiance map as the integral only depended on "wi" and we could move the constant diffuse albedo terms out of the integral
+
+- This time, the integral depends on more than just "wi" as evident form the BRDF:
+  $$ fr(p,\omega_i,\omega_o)=\frac{DFG}{4}(\omega_o \cdot n)(\omega_i \cdot n) $$
+
+- The integral is also depends on "wo" and we can't really sample a pre-computed cubemap with two direction vectors
+
+- The position "p" is irrelevant due to assuming that it will be located at the center of the hemisphere
+
+- Precomputing this integral for every combination of "wi" and "wo" isn't practical in a real-time setting
+
+- The split-sum approximation solves this by splitting the pre-computation into 2 individual parts that we can later combine to get the resulting pre-computed result we're after
+
+- The split-sum approximation splits the specular integral into two seperate integrals as follows:
+    $$Lo(p,\omega_o)=\int_\Omega L_i(p,\omega_i)d\omega_i \ast \int_\Omega f_r(p,\omega_i,\omega_o)n\cdot\omega_id\omega_i$$
+
+- The first part when pre-convoluted is known as the pre-filtered environment map which is (similar to the irradiance map) a pre-computed environment convolution map, but this time taking roughness into account
+
+- For increasing roughness levels, the environment map is convoluted with mare scattered smaple vectors creating blurrier reflections
+
+- For each roughness level we convolute, we store the sequentially blurrier results in the pre-fiktered map's mipmap levels
+
+- We generate the sample vectors and their scattering amount using the normal distribution function (NDF) of the Cook-Torrance BRDF that takes as input both a normal and a view direction. As we don't know beforehand the view direction when convoluting the environment map, Epic Games makes a further approximation by assuming the view direction (and thus the specular reflection direction) to be equal to the output sample direction "wo"
+
+- This way, the pre-filtered environment convolution doesn't need to be aware of the view direction. This does mean we don't get nice grazing specualr reflections when looking at specular surface reflections from an angle
+
+- The second part of the split sum equation equals the BRDF part of the specular integral
+
+- If we pretend the incoming radiance is completely white for every direction  (thus L(p,x)=1.0) we can pre-calculate the BRDF's response given an input roughness and an input angle between the normal n and light direction wi or "n * wi"
+
+- Epic Gsmes stores the pre-computed BRDF's response to each normal and light direction combination on varying roughness values in a 2D lookup texture (LUT) known as the BRDF integration map. The 2D lookup textures outputs a scale (red) and a bias value (green) to the surface's Fresnel response giving us the second part of the split specular integral
+
+- We egenrate the lookup texture by treating the horizontal texture coordinate (ranged between 0.0 to 1.0) of a plane as the BRDF's input "n*wi" and its vertical texture coordinate as the input roughness value
+
 ### Helpful Links
 
 - Another OpenGL tutorial series: <https://antongerdelan.net/opengl/>
