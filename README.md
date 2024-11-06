@@ -2373,6 +2373,51 @@ $$ Lo(p, \phi_o, \theta_o) = k_d\frac{c}{\pi} \int\limits_{\phi=0}^{2\pi} \int\l
 
     - Another option is that we can reduce this artifact by (during the pre-filter convolution) not directly sampling the environment map but sampling a mip level of the environment map based on the integral's PDF and the roughness
 
+- With the pre-filtered environment up and running, we can focus on the second part of the split-sum approximation: the BRDF
+
+- Recall the specular split sum approximation
+  $$Lo(p,\omega_o)=\int_\Omega L_i(p,\omega_i)d\omega_i \ast \int_\Omega f_r(p,\omega_i,\omega_o)n\cdot\omega_id\omega_i$$
+
+- We've pre-computed the left part of the split sum apporximation in the pre-filter map over different roughness levels. The right side requires us to convolute the BRDF equation over the angle "n*wo", the surface roughness and Fresnel's F0
+
+- This is similar to integrating the specular BRDF with a solid-white environment or a constant radiance "Li" of 1.0
+
+- Convoluting the BRDF over 3 variables is a bit much, but we can try to move "F0" out of the specular BRDF equation
+
+  $$ \int_\Omega f_r(p,\omega_i,\omega_o) n \cdot \omega_i d\omega_i = \int_\Omega \frac{f_r(p,\omega_i,\omega_o)}{F(\omega_o,h)}F(\omega_o,h)n \cdot \omega_i d\omega_i $$
+
+- With F being the Fresnel equation. Moving the Fresnel denominator to the BRDF gives us the following equivalent equation
+
+  $$\int_\Omega \frac{f_r(p,\omega_i,\omega_o)}{F(\omega_o,h)}F(\omega_o,h)n\cdot\omega_id\omega_i$$
+
+- Substituting the right-most F wiht the Fresnel-Schlick approximation gives us:
+
+  $$\int_\Omega \frac{f_r(p,\omega_i,\omega_o)}{F(\omega_o,h)}(F_0+(1-F_0)(1-\omega_o\cdot h)^5)n\cdot\omega_id\omega_i$$
+
+- Let's replace (1−ωo⋅h)^5 by α to make it easier to solve for F0
+
+  $$\int_\Omega \frac{f_r(p,\omega_i,\omega_o)}{F(\omega_o,h)}(F_0+(1-F_0)\alpha)n\cdot\omega_id\omega_i$$
+
+  $$\int_\Omega f_r(p,\omega_i,\omega_o)\frac{F_0+\alpha-F_0*\alpha}{F(\omega_o,h)}n\cdot\omega_id\omega_i$$
+
+  $$ \int_\Omega f_r(p,\omega_i,\omega_o) \frac{F_0(1-\alpha) + \alpha}{F(\omega_o,h)} n \cdot \omega_i d\omega_i $$
+
+- Then we split the Fresnel Function over two integrals
+
+  $$\int_\Omega \frac{f_r(p,\omega_i,\omega_o)}{F(\omega_o,h)}(F_0\ast(1-\alpha))n\cdot\omega_id\omega + \int_\Omega \frac{f_r(p,\omega_i,\omega_o)}{F(\omega_o,h)}(\alpha) n\cdot\omega_id\omega_i$$
+
+- This way, F0 is constant over the integral and we cna take F0 out of the integral. Next, we substitute α back to its original form giving up the final split sum BRDF equation
+
+$$ F0 \int_\Omega f_r(p,\omega_i,\omega_o) (1 - (1 - \omega_o \cdot h)^5) n \cdot \omega_i d\omega_i + \int_\Omega f_r(p,\omega_i,\omega_o) (1 - \omega_o \cdot h)^5 n \cdot \omega_i d\omega_i $$
+
+- The tow resulting integrals rperesent a scale and bias to F0 respectively. Note that as fr(p,ωi,ωo) already contains a term for F, they both cancel out , removing F from fr
+
+- In a similar fashion to the earlier convoluted environment maps, we can convolute the BRDF equations on their inputs: the angle between n and wo, and the roughness
+
+- We store the convoluted results in a 2D lookup texture (LUT) known as a BRDF integration map that we later us ein out PBR lighting shader to ge the final convoluted indirect specula result
+
+- The BRDF convolution shader operates on a 2D plane, using its 2D textute coorindates directly as inputs to the BRDF convolution
+
 ### Helpful Links
 
 - Another OpenGL tutorial series: <https://antongerdelan.net/opengl/>
