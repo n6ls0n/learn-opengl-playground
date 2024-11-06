@@ -2346,6 +2346,14 @@ $$ Lo(p, \phi_o, \theta_o) = k_d\frac{c}{\pi} \int\limits_{\phi=0}^{2\pi} \int\l
 
 - Because we reach the solution at a faster rate, we'll need significantly fewer samples to reach an approximation that is sufficient enough
 
+- In applying the knowledge from the notes above, we'll precompute the specular portion of the indirect reflectance equation using importance sampling given a random low-discrepancy sequence based on the Quasi-Monte Carlo methods
+
+- The sequence we'll be using is known as the Hammersley Sequence. It is based on the Van Der Corput sequence which mirrors a decimal binary representation around its decimal point
+
+- Not all OpenGL related drivers support bit operators (WebGL and OpenGL ES 2.0 for instance) in which case we'll have to use and alternative version of the Van Der Corput Sequence that doesn't rely on bit operators
+
+- Instead of uniformly or randomly (Monte Carlo) generating sample vectors over the integral's hemisphere we'll generate samnlple vectors biased towards the general reflection orientation of the microsurface halfway vector based on the surface's roughness
+
 ### Helpful Links
 
 - Another OpenGL tutorial series: <https://antongerdelan.net/opengl/>
