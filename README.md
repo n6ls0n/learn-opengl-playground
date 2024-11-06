@@ -2400,7 +2400,7 @@ $$ Lo(p, \phi_o, \theta_o) = k_d\frac{c}{\pi} \int\limits_{\phi=0}^{2\pi} \int\l
 
   $$\int_\Omega f_r(p,\omega_i,\omega_o)\frac{F_0+\alpha-F_0*\alpha}{F(\omega_o,h)}n\cdot\omega_id\omega_i$$
 
-  $$ \int_\Omega f_r(p,\omega_i,\omega_o) \frac{F_0(1-\alpha) + \alpha}{F(\omega_o,h)} n \cdot \omega_i d\omega_i $$
+  $$\int_\Omega f_r(p,\omega_i,\omega_o) \frac{F_0(1-\alpha) + \alpha}{F(\omega_o,h)} n \cdot \omega_i d\omega_i$$
 
 - Then we split the Fresnel Function over two integrals
 
@@ -2524,3 +2524,14 @@ $$ F0 \int_\Omega f_r(p,\omega_i,\omega_o) (1 - (1 - \omega_o \cdot h)^5) n \cdo
   - Another article on PBR - <https://seblagarde.wordpress.com/2011/08/17/hello-world/>
 
   - Points on a hemisphere article - <http://holger.dammertz.org/stuff/notes_HammersleyOnHemisphere.html>
+
+- PBR IBL links:
+  - Light probe generation and BRDF authoring for physically based shading - <https://github.com/dariomanesku/cmftStudio> & <https://github.com/derkreature/IBLBaker>
+
+  - Real Shading in Unreal Engine 4 - <https://blog.selfshadow.com/publications/s2013-shading-course/karis/s2013_pbs_epic_notes_v2.pdf>
+
+  - Chetan Jags Image Based Lighting - <https://chetanjags.wordpress.com/2015/08/26/image-based-lighting/>
+
+  - Moving Frostbite to Physically Based Rendering 3.0 - <https://seblagarde.wordpress.com/wp-content/uploads/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf>
+
+  - Implementation Notes: Runtime Environment Map Filtering for Image Based Lighting - <https://placeholderart.wordpress.com/2015/07/28/implementation-notes-runtime-environment-map-filtering-for-image-based-lighting/>
