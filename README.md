@@ -2354,6 +2354,25 @@ $$ Lo(p, \phi_o, \theta_o) = k_d\frac{c}{\pi} \int\limits_{\phi=0}^{2\pi} \int\l
 
 - Instead of uniformly or randomly (Monte Carlo) generating sample vectors over the integral's hemisphere we'll generate samnlple vectors biased towards the general reflection orientation of the microsurface halfway vector based on the surface's roughness
 
+- There are several render artifacts that are directly related to the pre-filter convolution:
+  - Cubemap seams at high roughness
+
+    - Sampling the pre-filter map on surfaces with a rough surface means sampling the pre-filter map on some of its lower mips levels
+
+    - When sampling submaps, OpenGL by default doesn't linearly interpolate across cubemap faces. Because the lower mip levels are both of a lower resolution and the pre-fileter map in convoluted with a much larger sample lobe, the lack between-cube-face filtering becomes quite apparent
+
+    - OpenGL gives us the option to properly filter across cubemap faces by enabling GL_TEXTURE_CUBE_MAP_SEAMLESS
+
+  - Bright spots in the pre-filter convolution
+
+    - Due to high frequency details and wildly varying light intensities in specular reflections, convoluting the specular reflections requires a large number of samples to properly account for the widly varying nature of the HDR environmental reflections
+
+    - We already take a very large number of samples but on some environments it may still not be enouigh at some of the rougher mip levels in which casse you'll start seeing dotted patterns emrge around bright areas
+
+    - One option is to further increase the sample count but this won't be enough for all environments
+
+    - Another option is that we can reduce this artifact by (during the pre-filter convolution) not directly sampling the environment map but sampling a mip level of the environment map based on the integral's PDF and the roughness
+
 ### Helpful Links
 
 - Another OpenGL tutorial series: <https://antongerdelan.net/opengl/>
